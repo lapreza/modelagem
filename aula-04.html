@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 4: Ferramentas de Modelagem de Banco de Dados | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #2563eb;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html" class="active">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 1 — Aula 4</div>
+      <h1>Ferramentas de Modelagem de Banco de Dados</h1>
+    </header>
+
+    <section class="card">
+      <h2>Por que usar Ferramentas CASE de Modelagem?</h2>
+      <p>
+        Embora o desenho em papel seja excelente para rascunhar ideias rápidas, o desenvolvimento profissional de banco de dados exige o uso de ferramentas CASE (<em>Computer-Aided Software Engineering</em>). Elas facilitam a criação, edição, padronização e conversão automática dos modelos conceituais e lógicos para código SQL (modelo físico).
+      </p>
+      <div class="box-destaque">
+        <p><strong>Vantagem Principal:</strong> Engenharia Direta e Reversa — A capacidade de converter o diagrama visual diretamente em scripts SQL executáveis para o banco de dados.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Principais Ferramentas Utilizadas no Mercado e no Ensino</h2>
+
+      <h3>1. brModelo</h3>
+      <p>
+        Ferramenta brasileira, gratuita e amplamente utilizada em ambiente acadêmico. É focada no ensino do Modelo Entidade-Relacionamento (MER) na notação de Peter Chen e suporta a conversão do Modelo Conceitual diretamente para o Modelo Lógico.
+      </p>
+
+      <h3>2. MySQL Workbench</h3>
+      <p>
+        Ferramenta oficial da Oracle para MySQL. Permite criar modelos lógicos e físicos avançados, além de se conectar diretamente com o servidor de banco de dados para executar consultas e gerenciar instâncias.
+      </p>
+
+      <h3>3. Ferramentas Online e Colaborativas (draw.io, Lucidchart)</h3>
+      <p>
+        Ideais para documentação rápida baseada na web, permitindo que múltiplos estudantes ou desenvolvedores editem diagramas em tempo real sem necessidade de instalação local.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Fluxo de Trabalho Prático de Modelagem</h2>
+      <ol>
+        <li><strong>Rascunho Inicial:</strong> Leitura do mini-mundo e anotações rápidas das entidades e atributos em papel.</li>
+        <li><strong>Criação Conceitual (Ex.: brModelo):</strong> Desenho do diagrama ER clássico com retângulos (entidades), losangos (relacionamentos) e elipses (atributos).</li>
+        <li><strong>Conversão para Modelo Lógico:</strong> Mapeamento das tabelas, definição de tipos de dados básicos, Chaves Primárias (PK) e Estrangeiras (FK).</li>
+        <li><strong>Geração do Script Físico (.sql):</strong> Exportação do script DDL contendo os comandos <code>CREATE TABLE</code> para o banco de dados final.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Prática em Laboratório / Exercício</h2>
+      <p>Utilizando o brModelo (ou uma ferramenta equivalente recomendada pelo professor):</p>
+      <ol>
+        <li>Crie um novo modelo conceitual para um <strong>Sistema de Biblioteca</strong>.</li>
+        <li>Insira a entidade <code>LIVRO</code> (atributos: <code>ID_Livro</code>, <code>Titulo</code>, <code>Ano</code>) e a entidade <code>AUTOR</code> (atributos: <code>ID_Autor</code>, <code>Nome</code>).</li>
+        <li>Conecte as entidades através do relacionamento <code>Escreve</code>.</li>
+        <li>Utilize a funcionalidade da ferramenta para converter o modelo conceitual para o modelo lógico e observe o resultado gerado.</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-03.html" class="btn-nav">← Aula Anterior: Modelo Entidade-Relacionamento</a>
+      <a href="aula-05.html" class="btn-nav">Próxima Aula: Relacionamentos 1:1 (Semana 2) →</a>
+    </div>
+  </main>
+
+</body>
+</html>

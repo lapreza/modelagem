@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 12: Casos Práticos de Normalização (1NF e 2NF) | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    table.exemplo-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+    table.exemplo-tabela th, table.exemplo-tabela td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    table.exemplo-tabela th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #2563eb;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html" class="active">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 3 — Aula 4</div>
+      <h1>Casos Práticos de Normalização: 1NF e 2NF</h1>
+    </header>
+
+    <section class="card">
+      <h2>Estudo de Caso: A Planilha Não Normalizada</h2>
+      <p>
+        Imagine que uma pequena loja de informática registrava suas vendas em uma planilha bruta, onde todos os dados ficavam misturados na mesma linha:
+      </p>
+
+      <table class="exemplo-tabela">
+        <thead>
+          <tr>
+            <th>num_venda</th>
+            <th>cliente</th>
+            <th>produtos_comprados</th>
+            <th>nome_vendedor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1001</td>
+            <td>Marcos Lima (Rua A, 10 - Sumaré)</td>
+            <td>10-Mouse (R$ 30), 20-Teclado (R$ 80)</td>
+            <td>Roberto Alves</td>
+          </tr>
+          <tr>
+            <td>1002</td>
+            <td>Fernanda Rocha (Av B, 50 - Paulínia)</td>
+            <td>30-Monitor (R$ 700)</td>
+            <td>Roberto Alves</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Passo 1: Aplicando a 1NF</h2>
+      <p>
+        Para atingir a <strong>1NF</strong>, devemos eliminar os campos multivalorados (<code>produtos_comprados</code>) e desmembrar os campos compostos (<code>cliente</code>).
+      </p>
+      
+      <p><strong>Tabela resultante na 1NF:</strong></p>
+      <ul>
+        <li><code>num_venda</code> (PK parcial)</li>
+        <li><code>cod_produto</code> (PK parcial)</li>
+        <li><code>nome_cliente</code></li>
+        <li><code>endereco_cliente</code></li>
+        <li><code>cidade_cliente</code></li>
+        <li><code>nome_produto</code></li>
+        <li><code>preco_unitario</code></li>
+        <li><code>nome_vendedor</code></li>
+      </ul>
+      <p>
+        <em>Agora cada célula possui apenas um valor atómico, mas criámos uma chave composta <code>(num_venda, cod_produto)</code>.</em>
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Passo 2: Aplicando a 2NF</h2>
+      <p>
+        Na tabela obtida na 1NF, identificamos **dependências funcionais parciais**:
+      </p>
+      <ul>
+        <li><code>nome_produto</code> e <code>preco_unitario</code> dependem **apenas** de <code>cod_produto</code> (e não do <code>num_venda</code>).</li>
+        <li><code>nome_cliente</code> e <code>nome_vendedor</code> dependem **apenas** de <code>num_venda</code>.</li>
+      </ul>
+
+      <h3>Estrutura Final Resultante (1NF + 2NF):</h3>
+      <ol>
+        <li><strong>Tabela VENDA:</strong> <code>num_venda (PK)</code>, <code>nome_cliente</code>, <code>endereco_cliente</code>, <code>cidade_cliente</code>, <code>nome_vendedor</code></li>
+        <li><strong>Tabela PRODUTO:</strong> <code>cod_produto (PK)</code>, <code>nome_produto</code>, <code>preco_unitario</code></li>
+        <li><strong>Tabela ITEM_VENDA:</strong> <code>num_venda (PK, FK)</code>, <code>cod_produto (PK, FK)</code>, <code>quantidade</code></li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Atividade Prática em Sala</h2>
+      <p>Dada a estrutura bruta de uma **Ficha de Matrícula de Aluno**:</p>
+      <div class="box-destaque">
+        <p><code>[cod_aluno, nome_aluno, telefones, cod_turma, nome_turma, sala, notas_bimestrais]</code></p>
+      </div>
+      <ol>
+        <li>Indique todos os pontos que violam a 1NF e proponha a correção.</li>
+        <li>Após aplicar a 1NF, identifique quais atributos possuem dependência parcial para montar as tabelas na 2NF.</li>
+        <li>Desenhe a estrutura relacional final com suas Chaves Primárias (PK) e Estrangeiras (FK).</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-11.html" class="btn-nav">← Aula Anterior: Segunda Forma Normal (2NF)</a>
+      <a href="aula-13.html" class="btn-nav">Próxima Aula: Terceira Forma Normal (Semana 4) →</a>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 15: Casos Práticos de Normalização (3NF e BCNF) | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    table.exemplo-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.85rem;
+    }
+    table.exemplo-tabela th, table.exemplo-tabela td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    table.exemplo-tabela th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #2563eb;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html" class="active">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 4 — Aula 3</div>
+      <h1>Casos Práticos de Normalização: 3NF e BCNF</h1>
+    </header>
+
+    <section class="card">
+      <h2>Estudo de Caso: Sistema de Ordens de Serviço (OS)</h2>
+      <p>
+        Considere a tabela abaixo proveniente de uma oficina mecânica, já ajustada para a 2NF:
+      </p>
+
+      <table class="exemplo-tabela">
+        <thead>
+          <tr>
+            <th>id_os (PK)</th>
+            <th>data_abertura</th>
+            <th>id_cliente</th>
+            <th>nome_cliente</th>
+            <th>cep_cliente</th>
+            <th>cidade_cliente</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5001</td>
+            <td>10/03/2026</td>
+            <td>12</td>
+            <td>Roberto Lapreza</td>
+            <td>13170-000</td>
+            <td>Sumaré</td>
+          </tr>
+          <tr>
+            <td>5002</td>
+            <td>11/03/2026</td>
+            <td>12</td>
+            <td>Roberto Lapreza</td>
+            <td>13170-000</td>
+            <td>Sumaré</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Diagnóstico de Dependências Transitivas (3NF)</h2>
+      <p>Analisando os atributos não-chave da tabela:</p>
+      <ul>
+        <li><code>id_cliente</code> depende da Chave Primária <code>id_os</code>. (Válido)</li>
+        <li><code>nome_cliente</code> e <code>cep_cliente</code> dependem do <code>id_cliente</code> (não da OS diretamente!).</li>
+        <li><code>cidade_cliente</code> depende do <code>cep_cliente</code> (dependência entre dois campos não-chave!).</li>
+      </ul>
+
+      <h3>Resolução em 3NF (Separação por Níveis):</h3>
+      <ol>
+        <li><strong>Tabela ORDEM_SERVICO:</strong> <code>id_os (PK)</code>, <code>data_abertura</code>, <code>id_cliente (FK)</code></li>
+        <li><strong>Tabela CLIENTE:</strong> <code>id_cliente (PK)</code>, <code>nome_cliente</code>, <code>cep (FK)</code></li>
+        <li><strong>Tabela ENDERECO_CEP:</strong> <code>cep (PK)</code>, <code>cidade_cliente</code>, <code>uf</code></li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Análise Prática de Boyce-Codd (BCNF)</h2>
+      <p>
+        Considere a alocação de salas para exames médicos. A regra da clínica dita que:
+      </p>
+      <div class="box-destaque">
+        <p>Um paciente faz exames em uma sala com um médico específico. Cada médico atende em apenas uma sala fixa, mas uma sala pode ser compartilhada por médicos em horários distintos.</p>
+      </div>
+
+      <p><strong>Estrutura de Agendamento:</strong> <code>(id_paciente, hora_exame, id_medico, num_sala)</code></p>
+      <ul>
+        <li>Chave Candidata Original: <code>(id_paciente, hora_exame)</code> $\rightarrow$ <code>id_medico</code></li>
+        <li>Dependência funcional existente: <code>id_medico</code> $\rightarrow$ <code>num_sala</code></li>
+        <li>Como <code>id_medico</code> determina a sala, mas não é superchave, decompõe-se em:
+          <ul>
+            <li><strong>Tabela MEDICO_SALA:</strong> <code>id_medico (PK)</code>, <code>num_sala</code></li>
+            <li><strong>Tabela AGENDAMENTO:</strong> <code>id_paciente (PK, FK)</code>, <code>hora_exame (PK)</code>, <code>id_medico (FK)</code></li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Atividade Prática em Sala</h2>
+      <p>Dada a tabela de gestão de projetos:</p>
+      <div class="box-destaque">
+        <p><code>[cod_projeto, cod_funcionario, nome_funcionario, cod_cargo, salario_base_cargo, horas_trabalhadas]</code></p>
+      </div>
+      <ol>
+        <li>Identifique todas as dependências transitivas que violam a 3NF.</li>
+        <li>Realize a decomposição completa para garantir que o esquema final atinja a 3NF.</li>
+        <li>Verifique se as tabelas resultantes satisfazem também os requisitos da BCNF.</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-14.html" class="btn-nav">← Aula Anterior: Forma Normal Boyce-Codd (BCNF)</a>
+      <a href="aula-16.html" class="btn-nav">Próxima Aula: Resumo e Revisão de Normalização →</a>
+    </div>
+  </main>
+
+</body>
+</html>

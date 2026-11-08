@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 27: Otimização de Consultas SQL | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #2563eb;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html" class="active">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 7 — Aula 3</div>
+      <h1>Otimização de Consultas SQL (Query Tuning)</h1>
+    </header>
+
+    <section class="card">
+      <h2>Por que a Otimização é Crítica?</h2>
+      <p>
+        À medida que uma base de dados cresce de milhares para milhões de registos, consultas mal escritas que demoravam milissegundos passam a demorar minutos, travando a aplicação inteira. A <strong>otimização de consultas (Query Tuning)</strong> busca reduzir o consumo de CPU, I/O de disco e memória RAM do servidor.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Analisando Planos de Execução com o EXPLAIN</h2>
+      <p>
+        O comando <code>EXPLAIN</code> antecede uma consulta <code>SELECT</code> para mostrar como o otimizador do SGBD pretende buscar os dados.
+      </p>
+
+<pre><code>-- Analisando o plano de execução de uma busca
+EXPLAIN SELECT aluno.nome, curso.nome_curso
+FROM aluno
+INNER JOIN curso ON aluno.id_curso = curso.id_curso
+WHERE aluno.email = 'aluno@escola.sp.gov.br';</code></pre>
+
+      <h3>Métricas Importantes do EXPLAIN:</h3>
+      <ul>
+        <li><code>type</code>: Indica o tipo de junção/busca. Se for <code>ALL</code>, significa que o SGBD está a fazer um <strong>Full Table Scan</strong> (lendo a tabela inteira linha a linha), o que deve ser evitado! Se for <code>ref</code> ou <code>const</code>, está a usar índices corretamente.</li>
+        <li><code>rows</code>: Estimativa do número de linhas examinadas.</li>
+        <li><code>key</code>: Mostra qual índice foi escolhido para a consulta.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Regras de Ouro para Escrever SQL de Alta Performance</h2>
+      
+      <h3>1. Evite o uso de SELECT *</h3>
+      <p>Retorne apenas os campos necessários. O <code>SELECT *</code> aumenta o tráfego de rede e impede o uso de índices de cobertura.</p>
+
+      <h3>2. Cuidado com Coringas no Início da Cláusula LIKE</h3>
+      <p>Buscas como <code>WHERE nome LIKE '%Silva'</code> não conseguem utilizar índices normais B-Tree, forçando a varredura completa da tabela. Prefira <code>LIKE 'Silva%'</code>.</p>
+
+      <h3>3. Evite Funções em Colunas Dentro da Cláusula WHERE</h3>
+      <p>
+        Consultas como <code>WHERE YEAR(data_cadastro) = 2026</code> desativam o uso do índice da coluna.
+        <br><em>Forma Otimizada:</em> <code>WHERE data_cadastro BETWEEN '2026-01-01' AND '2026-12-31'</code>.
+      </p>
+
+      <h3>4. Prefira EXISTS a IN em Subqueries Grandes</h3>
+      <p>O operador <code>EXISTS</code> encerra a busca assim que encontra a primeira correspondência, enquanto <code>IN</code> pode carregar listas gigantes na memória.</p>
+    </section>
+
+    <section class="card">
+      <h2>Atividade Prática</h2>
+      <ol>
+        <li>Reescreva a consulta ineficiente <code>SELECT * FROM aluno WHERE UPPER(nome) = 'MARCOS';</code> de forma a permitir o aproveitamento de um índice na coluna <code>nome</code>.</li>
+        <li>O que significa a presença do valor <code>ALL</code> na coluna <code>type</code> do resultado do comando <code>EXPLAIN</code>?</li>
+        <li>Qual o impacto negativo de aplicar uma função matemática numa coluna dentro da cláusula <code>WHERE</code>?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-26.html" class="btn-nav">← Aula Anterior: Backup e Recuperação de Dados</a>
+      <a href="aula-28.html" class="btn-nav">Próxima Aula: Casos Práticos de Desenvolvimento →</a>
+    </div>
+  </main>
+
+</body>
+</html>

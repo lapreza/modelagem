@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelagem e Desenvolvimento de Banco de Dados | 1º Bimestre</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      font-size: 1rem;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    .grid-semanas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .box-semana {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 15px;
+      background-color: #f8fafc;
+    }
+    .box-semana h3 {
+      font-size: 1rem;
+      color: #2563eb;
+      margin-bottom: 6px;
+    }
+    .box-semana p {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <h1>Modelagem e Desenvolvimento de Banco de Dados</h1>
+      <p>Material de Apoio Didático — 1º Bimestre</p>
+      <p>Professor Rafael Vainisckas Lapreza</p>
+    </header>
+
+    <section class="card">
+      <h2>Apresentação da Disciplina</h2>
+      <p>
+        Bem-vindos à disciplina de <strong>Modelagem e Desenvolvimento de Banco de Dados</strong>. O objetivo deste curso é capacitar você a compreender desde a fase inicial de levantamento de requisitos de dados até a implementação e manipulação de bancos relacionais robustos.
+      </p>
+      <p>
+        Durante este primeiro bimestre, faremos a transição conceitual do mundo real para modelos abstratos (DER), aplicaremos regras rígidas de normalização para evitar redundâncias e inconsistências, e iniciaremos a escrita de instruções em linguagem SQL para criação e consulta de bases.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Estrutura do 1º Bimestre</h2>
+      <p>O conteúdo está dividido em 7 blocos semanais de aprendizagem:</p>
+      
+      <div class="grid-semanas">
+        <div class="box-semana">
+          <h3>Semana 1</h3>
+          <p>Levantamento de Dados, Conceitos Fundamentais e Modelo Entidade-Relacionamento.</p>
+        </div>
+        <div class="box-semana">
+          <h3>Semana 2</h3>
+          <p>Mapeamento e aplicação dos tipos de relacionamentos (1:1, 1:N, N:M).</p>
+        </div>
+        <div class="box-semana">
+          <h3>Semana 3</h3>
+          <p>Introdução à Normalização de Dados: 1ª e 2ª Formas Normais (1NF e 2NF).</p>
+        </div>
+        <div class="box-semana">
+          <h3>Semana 4</h3>
+          <p>Refinamento de dados com a 3ª Forma Normal (3NF) e Boyce-Codd (BCNF).</p>
+        </div>
+        <div class="box-semana">
+          <h3>Semana 5</h3>
+          <p>Fundamentos da Linguagem SQL: Comandos CREATE, SELECT e UPDATE.</p>
+        </div>
+        <div class="box-semana">
+          <h3>Semana 6</h3>
+          <p>Manipulação avançada com DELETE, Joins, Subqueries, Views e Transações.</p>
+        </div>
+        <div class="box-semana">
+          <h3>Semana 7</h3>
+          <p>Aplicações práticas: Segurança, rotinas de Backup e otimização de consultas.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

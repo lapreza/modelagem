@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 2: Levantamento de Requisitos e Análise de Dados | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #2563eb;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html" class="active">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 1 — Aula 2</div>
+      <h1>Levantamento de Requisitos e Análise de Dados</h1>
+    </header>
+
+    <section class="card">
+      <h2>O que é o Levantamento de Requisitos?</h2>
+      <p>
+        O levantamento de requisitos é a fase do projeto em que o analista ou desenvolvedor investiga, escuta e documenta exatamente o que o cliente ou a empresa precisa armazenar e gerenciar.
+      </p>
+      <div class="box-destaque">
+        <p><strong>Regra de Ouro:</strong> Um erro de interpretação nesta fase custa muito mais caro para ser corrigido quando o banco de dados já estiver populado e em produção.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Técnicas de Coleta de Informações</h2>
+      <p>Para identificar quais dados devem ser guardados no sistema, utilizamos diferentes estratégias:</p>
+      <ul>
+        <li><strong>Entrevistas com Usuários:</strong> Conversar com quem opera o sistema no dia a dia (caixas, atendentes, gerentes) para entender a rotina.</li>
+        <li><strong>Análise de Documentos Existentes:</strong> Examinar notas fiscais impressas, planilhas do Excel, fichas em papel e relatórios antigos da empresa.</li>
+        <li><strong>Observação Direta:</strong> Acompanhar o fluxo operacional do negócio para identificar pontos que os usuários esquecem de mencionar nas entrevistas.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Extraindo Entidades e Atributos de um Texto (Mini-Mundo)</h2>
+      <p>
+        Em projetos de banco de dados, chamamos a descrição do problema de <strong>Mini-Mundo</strong>. Ao ler a regra de negócio, aplicamos regras gramaticais simples para identificar os elementos centrais:
+      </p>
+
+      <h3>1. Entidades (Substantivos)</h3>
+      <p>
+        Geralmente representam coisas, pessoas, locais ou conceitos sobre os quais queremos guardar dados.
+        <br><em>Exemplo:</em> <strong>Cliente</strong>, <strong>Produto</strong>, <strong>Fornecedor</strong>, <strong>Venda</strong>.
+      </p>
+
+      <h3>2. Atributos (Características / Adjetivos / Informações)</h3>
+      <p>
+        São as propriedades que descrevem cada entidade.
+        <br><em>Exemplo para Cliente:</em> <code>Nome</code>, <code>CPF</code>, <code>Telefone</code>, <code>Endereço</code>.
+      </p>
+
+      <h3>3. Relacionamentos (Verbos)</h3>
+      <p>
+        Indicam a ação ou associação entre duas entidades.
+        <br><em>Exemplo:</em> Cliente <strong>compra</strong> Produto; Fornecedor <strong>entrega</strong> Produto.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Estudo de Caso Prático</h2>
+      <div class="box-destaque">
+        <p><strong>Cenário:</strong> "Uma oficina mecânica precisa controlar o atendimento de seus clientes. Cada cliente possui nome, CPF e telefone. Um cliente pode levar um ou mais veículos para conserto. De cada veículo, a oficina registra a placa, o modelo e o ano."</p>
+      </div>
+      <p><strong>Análise de Requisitos:</strong></p>
+      <ul>
+        <li><strong>Entidades identificadas:</strong> <code>Cliente</code> e <code>Veículo</code>.</li>
+        <li><strong>Atributos do Cliente:</strong> CPF, Nome, Telefone.</li>
+        <li><strong>Atributos do Veículo:</strong> Placa, Modelo, Ano.</li>
+        <li><strong>Relacionamento:</strong> Cliente <em>possui/leva</em> Veículo.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <p>Leia o texto de mini-mundo abaixo e responda às questões no seu caderno:</p>
+      <div class="box-destaque">
+        <p><em>"Uma farmácia deseja registrar as vendas de medicamentos. Para cada cliente, armazena-se o código, nome e e-mail. Os medicamentos têm um código de barras, nome comercial e preço. Um cliente pode realizar várias compras, e em cada compra é registrada a data e os medicamentos adquiridos."</em></p>
+      </div>
+      <ol>
+        <li>Liste todas as <strong>entidades</strong> identificadas no texto.</li>
+        <li>Quais são os <strong>atributos</strong> associados à entidade <em>Medicamento</em>?</li>
+        <li>Qual o <strong>relacionamento</strong> existente entre <em>Cliente</em> e <em>Medicamento</em>?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-01.html" class="btn-nav">← Aula Anterior: Introdução à Modelagem</a>
+      <a href="aula-03.html" class="btn-nav">Próxima Aula: Modelo Entidade-Relacionamento →</a>
+    </div>
+  </main>
+
+</body>
+</html>

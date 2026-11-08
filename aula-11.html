@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 11: Segunda Forma Normal (2NF) | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #2563eb;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    table.exemplo-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.9rem;
+    }
+    table.exemplo-tabela th, table.exemplo-tabela td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    table.exemplo-tabela th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #2563eb;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>Conteúdo Programático</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 1: Levantamento & Conceitos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-01.html">Aula 1: Introdução à Modelagem</a></li>
+        <li><a href="aula-02.html">Aula 2: Levantamento de Requisitos</a></li>
+        <li><a href="aula-03.html">Aula 3: Modelo Entidade-Relacionamento</a></li>
+        <li><a href="aula-04.html">Aula 4: Ferramentas de Modelagem</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 2: Tipos de Relacionamentos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-05.html">Aula 1: Relacionamentos 1:1</a></li>
+        <li><a href="aula-06.html">Aula 2: Relacionamentos 1:N</a></li>
+        <li><a href="aula-07.html">Aula 3: Relacionamentos N:M</a></li>
+        <li><a href="aula-08.html">Aula 4: Relacionamentos Complexos</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 3: 1ª e 2ª Formas Normais</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-09.html">Aula 1: Introdução às Formas Normais</a></li>
+        <li><a href="aula-10.html">Aula 2: Primeira Forma Normal (1NF)</a></li>
+        <li><a href="aula-11.html" class="active">Aula 3: Segunda Forma Normal (2NF)</a></li>
+        <li><a href="aula-12.html">Aula 4: Casos Práticos: 1NF e 2NF</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 4: 3ª Forma Normal e BCNF</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-13.html">Aula 1: Terceira Forma Normal (3NF)</a></li>
+        <li><a href="aula-14.html">Aula 2: Forma Normal Boyce-Codd</a></li>
+        <li><a href="aula-15.html">Aula 3: Casos Práticos: 3NF e BCNF</a></li>
+        <li><a href="aula-16.html">Aula 4: Resumo e Revisão de Normalização</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 5: Introdução ao SQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-17.html">Aula 1: Introdução à Linguagem SQL</a></li>
+        <li><a href="aula-18.html">Aula 2: Criação de Estruturas (CREATE)</a></li>
+        <li><a href="aula-19.html">Aula 3: Consultas e Leitura (SELECT)</a></li>
+        <li><a href="aula-20.html">Aula 4: Atualização de Dados (UPDATE)</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 6: SQL Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-21.html">Aula 1: Remoção de Dados (DELETE)</a></li>
+        <li><a href="aula-22.html">Aula 2: Joins e Subqueries</a></li>
+        <li><a href="aula-23.html">Aula 3: Views e Índices</a></li>
+        <li><a href="aula-24.html">Aula 4: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 7: Aplicações Práticas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-25.html">Aula 1: Segurança em Banco de Dados</a></li>
+        <li><a href="aula-26.html">Aula 2: Backup e Recuperação</a></li>
+        <li><a href="aula-27.html">Aula 3: Otimização de Consultas</a></li>
+        <li><a href="aula-28.html">Aula 4: Casos Práticos de Desenvolvimento</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 3 — Aula 3</div>
+      <h1>Segunda Forma Normal (2NF)</h1>
+    </header>
+
+    <section class="card">
+      <h2>Regras da Segunda Forma Normal (2NF)</h2>
+      <p>
+        Uma tabela está na <strong>Segunda Forma Normal (2NF)</strong> quando cumpre dois requisitos fundamentais:
+      </p>
+      <ol>
+        <li>Já se encontra na Primeira Forma Normal (1NF).</li>
+        <li>Todos os seus atributos não-chave dependem **totalmente** da chave primária (não existindo dependências funcionais parciais).</li>
+      </ol>
+      <div class="box-destaque">
+        <p><strong>Observação Importante:</strong> A 2NF só se torna uma preocupação real em tabelas que possuem <strong>Chave Primária Composta</strong> (formada por duas ou mais colunas). Se a chave for simples, a tabela já está automaticamente na 2NF (desde que esteja na 1NF).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Entendendo a Dependência Parcial (Violando a 2NF)</h2>
+      <p>Considere uma tabela de itens de um pedido com a Chave Primária composta por <code>(id_pedido, id_produto)</code>:</p>
+      
+      <table class="exemplo-tabela">
+        <thead>
+          <tr>
+            <th>id_pedido (PK)</th>
+            <th>id_produto (PK)</th>
+            <th>quantidade</th>
+            <th>nome_produto (VIOLA A 2NF)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>101</td>
+            <td>55</td>
+            <td>2</td>
+            <td>Teclado USB</td>
+          </tr>
+          <tr>
+            <td>101</td>
+            <td>88</td>
+            <td>1</td>
+            <td>Mouse Óptico</td>
+          </tr>
+          <tr>
+            <td>102</td>
+            <td>55</td>
+            <td>5</td>
+            <td>Teclado USB</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Análise da Dependência:</strong></p>
+      <ul>
+        <li><code>quantidade</code> depende de ambos: do pedido E do produto especificamente. (Dependência Total)</li>
+        <li><code>nome_produto</code> depende APENAS do <code>id_produto</code>. Ele não precisa do <code>id_pedido</code> para ser identificado. (Dependência Parcial!)</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Como Aplicar a 2NF (Passo a Passo)</h2>
+      <p>Para corrigir o problema e colocar a tabela na 2NF:</p>
+      <ol>
+        <li>Identifique os atributos que dependem apenas de parte da chave primária.</li>
+        <li>Remova esses atributos da tabela original e crie uma nova tabela dedicada para eles.</li>
+      </ol>
+
+      <h3>Resultado Normalizado (2NF):</h3>
+      <p><strong>Tabela ITEM_PEDIDO:</strong> <code>id_pedido (PK, FK)</code>, <code>id_produto (PK, FK)</code>, <code>quantidade</code></p>
+      <p><strong>Tabela PRODUTO:</strong> <code>id_produto (PK)</code>, <code>nome_produto</code></p>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Dada a tabela <code>ALUNO_TURMA</code> com PK <code>(id_aluno, id_turma)</code> e as colunas <code>nota_final</code>, <code>frequencia</code> e <code>nome_aluno</code>: qual dessas colunas viola a 2NF e por quê?</li>
+        <li>É verdade que uma tabela com chave primária simples de apenas um campo (ex.: <code>id_cliente</code>) nunca violará a 2NF? Justifique.</li>
+        <li>Qual a consequência negativa de manter o nome do produto repetido em todas as linhas da tabela de itens de pedidos?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-10.html" class="btn-nav">← Aula Anterior: Primeira Forma Normal (1NF)</a>
+      <a href="aula-12.html" class="btn-nav">Próxima Aula: Casos Práticos: 1NF e 2NF →</a>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 90: Introdução ao Cassandra | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (4º Bimestre) -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>4º Bimestre — NoSQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 22: Introdução ao NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-85.html">Aula 85: Conceitos e Tipos NoSQL</a></li>
+        <li><a href="aula-86.html">Aula 86: Comparação SQL vs NoSQL</a></li>
+        <li><a href="aula-87.html">Aula 87: Arquitetura de Bancos NoSQL</a></li>
+        <li><a href="aula-88.html">Aula 88: Modelagem de Dados NoSQL</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 23: Ferramentas NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-89.html">Aula 89: Introdução ao MongoDB</a></li>
+        <li><a href="aula-90.html" class="active">Aula 90: Introdução ao Cassandra</a></li>
+        <li><a href="aula-91.html">Aula 91: Introdução ao Redis</a></li>
+        <li><a href="aula-92.html">Aula 92: Introdução ao Neo4j</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 24: Operações e Consultas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-93.html">Aula 93: CRUD no MongoDB</a></li>
+        <li><a href="aula-94.html">Aula 94: Consultas Avançadas MongoDB</a></li>
+        <li><a href="aula-95.html">Aula 95: Operações no Cassandra</a></li>
+        <li><a href="aula-96.html">Aula 96: Consultas no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 25: Arquitetura e Escalabilidade</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-97.html">Aula 97: Replicação no MongoDB</a></li>
+        <li><a href="aula-98.html">Aula 98: Sharding no MongoDB</a></li>
+        <li><a href="aula-99.html">Aula 99: Escalabilidade no Cassandra</a></li>
+        <li><a href="aula-100.html">Aula 100: Escalabilidade no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 26: Segurança e Backup</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-101.html">Aula 101: Segurança no MongoDB</a></li>
+        <li><a href="aula-102.html">Aula 102: Backup e Recuperação MongoDB</a></li>
+        <li><a href="aula-103.html">Aula 103: Segurança no Cassandra</a></li>
+        <li><a href="aula-104.html">Aula 104: Backup e Recuperação Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 27: Performance e Monitoramento</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-105.html">Aula 105: Monitoramento no MongoDB</a></li>
+        <li><a href="aula-106.html">Aula 106: Otimização no MongoDB</a></li>
+        <li><a href="aula-107.html">Aula 107: Monitoramento no Cassandra</a></li>
+        <li><a href="aula-108.html">Aula 108: Otimização no Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 28: Casos de Uso Práticos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-109.html">Aula 109: Aplicações de MongoDB</a></li>
+        <li><a href="aula-110.html">Aula 110: Aplicações de Cassandra</a></li>
+        <li><a href="aula-111.html">Aula 111: Aplicações de Redis</a></li>
+        <li><a href="aula-112.html">Aula 112: Aplicações de Neo4j</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 23 — Aula 2</div>
+      <h1>Introdução ao Apache Cassandra</h1>
+    </header>
+
+    <section class="card">
+      <h2>O que é o Apache Cassandra?</h2>
+      <p>
+        O <strong>Apache Cassandra</strong> é um banco de dados NoSQL distribuído de altíssimo desempenho, pertencente à família de **colunas largas (Wide-Column Store)**. Criado originalmente pelo Facebook para resolver problemas de busca na caixa de entrada de mensagens e tornado código aberto pela Apache Software Foundation em 2008.
+      </p>
+      <div class="box-destaque">
+        <p><strong>Diferencial Principal:</strong> O Cassandra foi desenhado para lidar com petabytes de dados espalhados por centenas de servidores comuns, oferecendo <strong>alta disponibilidade sem ponto único de falha (Single Point of Failure - SPOF)</strong> e escrita de baixíssima latência.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Arquitetura Descentralizada (Ring Architecture)</h2>
+      <p>
+        Diferente do MongoDB (que usa nós primários e secundários), o Cassandra utiliza uma arquitetura **Peer-to-Peer (Par-a-Par)** em formato de anel (<em>Ring Topology</em>):
+      </p>
+      <ul>
+        <li><strong>Todos os nós são iguais:</strong> Não existe nó "mestre" ou "servidor principal". Qualquer nó no cluster pode receber qualquer requisição de leitura ou escrita.</li>
+        <li><strong>Gossip Protocol:</strong> Protocolo interno contínuo em que os nós trocam mensagens de estado entre si para monitorar quem está ativo no cluster.</li>
+        <li><strong>Particionamento por Hash (Partition Key):</strong> Uma função hash converte a chave de partição da linha em um número e determina exatamente em qual nó do anel o dado será gravado.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Estrutura de Dados e a Linguagem CQL</h2>
+      <p>
+        Embora seja NoSQL, o Cassandra disponibiliza uma linguagem de consulta declarativa muito semelhante ao SQL tradicional, chamada <strong>CQL (Cassandra Query Language)</strong>.
+      </p>
+
+      <h3>Conceitos de Organização:</h3>
+      <ul>
+        <li><strong>Keyspace:</strong> O container equivalente a um *Database* no mundo SQL. Define as estratégias de replicação e o fator de cópias no cluster.</li>
+        <li><strong>Table (Coluna Larga):</strong> Estrutura composta por linhas e colunas dinâmicas. Cada linha pode ter um número diferente de colunas gravadas em disco.</li>
+        <li><strong>Primary Key:</strong> Composta obrigatoriamente por uma <em>Partition Key</em> (define em qual nó o dado mora) e opcionalmente por <em>Clustering Columns</em> (definem a ordenação física dos dados dentro do nó).</li>
+      </ul>
+
+      <h3>Exemplo de DDL em CQL:</h3>
+<pre><code>-- Criando um Keyspace no Cassandra
+CREATE KEYSPACE escola_log WITH replication = {
+    'class': 'SimpleStrategy', 
+    'replication_factor': 3
+};
+
+-- Criando uma tabela para logs de sensores de temperatura
+CREATE TABLE escola_log.sensores (
+    id_sensor uuid,
+    data_leitura timestamp,
+    temperatura float,
+    PRIMARY KEY (id_sensor, data_leitura)
+) WITH CLUSTERING ORDER BY (data_leitura DESC);</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Por que dizemos que o Apache Cassandra possui uma arquitetura <strong>Peer-to-Peer (Masterless)</strong> e qual a grande vantagem disso para o ambiente de produção?</li>
+        <li>Explique a diferença entre <strong>Partition Key</strong> e <strong>Clustering Columns</strong> na composição da Chave Primária em CQL.</li>
+        <li>O que é um <strong>Keyspace</strong> no Apache Cassandra e qual a sua função ao definir a replicação de dados?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-89.html" class="btn-nav">← Aula Anterior: Introdução ao MongoDB</a>
+      <a href="aula-91.html" class="btn-nav">Próxima Aula: Introdução ao Redis →</a>
+    </div>
+  </main>
+
+</body>
+</html>

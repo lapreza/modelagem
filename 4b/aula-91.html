@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 91: Introdução ao Redis | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (4º Bimestre) -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>4º Bimestre — NoSQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 22: Introdução ao NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-85.html">Aula 85: Conceitos e Tipos NoSQL</a></li>
+        <li><a href="aula-86.html">Aula 86: Comparação SQL vs NoSQL</a></li>
+        <li><a href="aula-87.html">Aula 87: Arquitetura de Bancos NoSQL</a></li>
+        <li><a href="aula-88.html">Aula 88: Modelagem de Dados NoSQL</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 23: Ferramentas NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-89.html">Aula 89: Introdução ao MongoDB</a></li>
+        <li><a href="aula-90.html">Aula 90: Introdução ao Cassandra</a></li>
+        <li><a href="aula-91.html" class="active">Aula 91: Introdução ao Redis</a></li>
+        <li><a href="aula-92.html">Aula 92: Introdução ao Neo4j</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 24: Operações e Consultas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-93.html">Aula 93: CRUD no MongoDB</a></li>
+        <li><a href="aula-94.html">Aula 94: Consultas Avançadas MongoDB</a></li>
+        <li><a href="aula-95.html">Aula 95: Operações no Cassandra</a></li>
+        <li><a href="aula-96.html">Aula 96: Consultas no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 25: Arquitetura e Escalabilidade</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-97.html">Aula 97: Replicação no MongoDB</a></li>
+        <li><a href="aula-98.html">Aula 98: Sharding no MongoDB</a></li>
+        <li><a href="aula-99.html">Aula 99: Escalabilidade no Cassandra</a></li>
+        <li><a href="aula-100.html">Aula 100: Escalabilidade no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 26: Segurança e Backup</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-101.html">Aula 101: Segurança no MongoDB</a></li>
+        <li><a href="aula-102.html">Aula 102: Backup e Recuperação MongoDB</a></li>
+        <li><a href="aula-103.html">Aula 103: Segurança no Cassandra</a></li>
+        <li><a href="aula-104.html">Aula 104: Backup e Recuperação Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 27: Performance e Monitoramento</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-105.html">Aula 105: Monitoramento no MongoDB</a></li>
+        <li><a href="aula-106.html">Aula 106: Otimização no MongoDB</a></li>
+        <li><a href="aula-107.html">Aula 107: Monitoramento no Cassandra</a></li>
+        <li><a href="aula-108.html">Aula 108: Otimização no Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 28: Casos de Uso Práticos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-109.html">Aula 109: Aplicações de MongoDB</a></li>
+        <li><a href="aula-110.html">Aula 110: Aplicações de Cassandra</a></li>
+        <li><a href="aula-111.html">Aula 111: Aplicações de Redis</a></li>
+        <li><a href="aula-112.html">Aula 112: Aplicações de Neo4j</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 23 — Aula 3</div>
+      <h1>Introdução ao Redis</h1>
+    </header>
+
+    <section class="card">
+      <h2>O que é o Redis?</h2>
+      <p>
+        O <strong>Redis</strong> (<em>Remote Dictionary Server</em>) é um armazenador de estrutura de dados em memória (<em>In-Memory Data Store</em>) de código aberto, utilizado principalmente como banco de dados NoSQL do tipo <strong>Chave-Valor (Key-Value)</strong>, sistema de cache de altíssima velocidade e barramento de mensagens (<em>Message Broker / Pub-Sub</em>).
+      </p>
+      <div class="box-destaque">
+        <p><strong>Desempenho Extremo:</strong> Por manter todas as suas operações gravadas diretamente na memória RAM, o Redis entrega respostas na casa de sub-milissegundos, processando centenas de milhares de operações por segundo.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Estruturas de Dados Suportadas pelo Redis</h2>
+      <p>
+        Diferente de sistemas simples de chave-valor que aceitam apenas texto bruto, o Redis é conhecido como um **Servidor de Estruturas de Dados**, pois permite associar chaves a diversos tipos complexos:
+      </p>
+
+      <ul>
+        <li><strong>Strings:</strong> O tipo básico (texto, inteiros, números binários de até 512MB).</li>
+        <li><strong>Hashes:</strong> Mapas de campos e valores dentro de uma chave (ideal para objetos como dados de usuário).</li>
+        <li><strong>Lists:</strong> Listas ordenadas de strings que permitem inserções rápidas no início (<code>LPUSH</code>) ou no fim (<code>RPUSH</code>).</li>
+        <li><strong>Sets:</strong> Coleções não ordenadas de elementos únicos (sem duplicatas).</li>
+        <li><strong>Sorted Sets (ZSets):</strong> Sets onde cada elemento possui um peso/pontuação (<em>score</em>), sendo mantidos sempre ordenados (excelente para placares de jogos e *rankings*).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Exemplos de Comandos Básicos no Redis CLI</h2>
+<pre><code># Gravar e ler uma string simples
+SET usuario:100:nome "Rafael Lapreza"
+GET usuario:100:nome
+
+# Definir uma chave com tempo de expiração (TTL) de 60 segundos
+SETEX sessao:token_abc 60 "dados_da_sessao"
+
+# Operações em Hash (Objeto)
+HSET usuario:100 email "rafael@email.com" idade "45"
+HGETALL usuario:100
+
+# Adicionar elemento em uma Lista (Fila/Fila de Mensagens)
+RPUSH fila:tarefas "enviar_email_boas_vindas"
+LPOP fila:tarefas</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Persistência no Redis</h2>
+      <p>
+        Mesmo sendo um banco em memória, o Redis disponibiliza dois mecanismos para salvar os dados em disco e evitar perdas no caso de reinicialização do servidor:
+      </p>
+      <ul>
+        <li><strong>RDB (Redis Database Backup):</strong> Tira *snapshots* (retratos compactos em ponto no tempo) da memória em intervalos configuráveis.</li>
+        <li><strong>AOF (Append-Only File):</strong> Registra em log cada comando de escrita recebido pelo servidor, permitindo reproduzir a sequência exata de operações na inicialização.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Qual é o principal fator arquitetural que torna as leituras e escritas no Redis extremamente mais rápidas que em bancos tradicionais baseados em disco?</li>
+        <li>Diferencie a estrutura de dados <strong>Set</strong> da estrutura <strong>Sorted Set (ZSet)</strong> no Redis e dê um exemplo prático de uso para a segunda.</li>
+        <li>O que é o mecanismo <strong>TTL (Time To Live)</strong> e por que ele é fundamental na implementação de caches de sessão?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-90.html" class="btn-nav">← Aula Anterior: Introdução ao Cassandra</a>
+      <a href="aula-92.html" class="btn-nav">Próxima Aula: Introdução ao Neo4j →</a>
+    </div>
+  </main>
+
+</body>
+</html>

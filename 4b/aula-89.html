@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 89: Introdução ao MongoDB | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    table.exemplo-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.9rem;
+    }
+    table.exemplo-tabela th, table.exemplo-tabela td {
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      text-align: left;
+    }
+    table.exemplo-tabela th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (4º Bimestre) -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>4º Bimestre — NoSQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 22: Introdução ao NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-85.html">Aula 85: Conceitos e Tipos NoSQL</a></li>
+        <li><a href="aula-86.html">Aula 86: Comparação SQL vs NoSQL</a></li>
+        <li><a href="aula-87.html">Aula 87: Arquitetura de Bancos NoSQL</a></li>
+        <li><a href="aula-88.html">Aula 88: Modelagem de Dados NoSQL</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 23: Ferramentas NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-89.html" class="active">Aula 89: Introdução ao MongoDB</a></li>
+        <li><a href="aula-90.html">Aula 90: Introdução ao Cassandra</a></li>
+        <li><a href="aula-91.html">Aula 91: Introdução ao Redis</a></li>
+        <li><a href="aula-92.html">Aula 92: Introdução ao Neo4j</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 24: Operações e Consultas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-93.html">Aula 93: CRUD no MongoDB</a></li>
+        <li><a href="aula-94.html">Aula 94: Consultas Avançadas MongoDB</a></li>
+        <li><a href="aula-95.html">Aula 95: Operações no Cassandra</a></li>
+        <li><a href="aula-96.html">Aula 96: Consultas no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 25: Arquitetura e Escalabilidade</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-97.html">Aula 97: Replicação no MongoDB</a></li>
+        <li><a href="aula-98.html">Aula 98: Sharding no MongoDB</a></li>
+        <li><a href="aula-99.html">Aula 99: Escalabilidade no Cassandra</a></li>
+        <li><a href="aula-100.html">Aula 100: Escalabilidade no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 26: Segurança e Backup</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-101.html">Aula 101: Segurança no MongoDB</a></li>
+        <li><a href="aula-102.html">Aula 102: Backup e Recuperação MongoDB</a></li>
+        <li><a href="aula-103.html">Aula 103: Segurança no Cassandra</a></li>
+        <li><a href="aula-104.html">Aula 104: Backup e Recuperação Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 27: Performance e Monitoramento</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-105.html">Aula 105: Monitoramento no MongoDB</a></li>
+        <li><a href="aula-106.html">Aula 106: Otimização no MongoDB</a></li>
+        <li><a href="aula-107.html">Aula 107: Monitoramento no Cassandra</a></li>
+        <li><a href="aula-108.html">Aula 108: Otimização no Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 28: Casos de Uso Práticos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-109.html">Aula 109: Aplicações de MongoDB</a></li>
+        <li><a href="aula-110.html">Aula 110: Aplicações de Cassandra</a></li>
+        <li><a href="aula-111.html">Aula 111: Aplicações de Redis</a></li>
+        <li><a href="aula-112.html">Aula 112: Aplicações de Neo4j</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 23 — Aula 1</div>
+      <h1>Introdução ao MongoDB</h1>
+    </header>
+
+    <section class="card">
+      <h2>O que é o MongoDB?</h2>
+      <p>
+        O <strong>MongoDB</strong> é o banco de dados NoSQL orientado a documentos mais popular e utilizado do mundo. Criado pela <em>10gen</em> (atual MongoDB Inc.) em 2007, foi desenvolvido para ser altamente escalável, flexível e nativamente compatível com aplicações web e mobile modernas.
+      </p>
+      <div class="box-destaque">
+        <p><strong>Orientado a Documentos:</strong> Em vez de armazenar dados em tabelas rígidas compostas por linhas e colunas, o MongoDB armazena dados em documentos autossuficientes no formato <strong>BSON</strong> (Binary JSON).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Mapeamento de Conceitos: Relacional vs. MongoDB</h2>
+      <p>
+        Para quem vem do mundo SQL, a tabela a seguir correlaciona os termos fundamentais dos dois paradigmas:
+      </p>
+
+      <table class="exemplo-tabela">
+        <thead>
+          <tr>
+            <th>Conceito Relacional (SQL)</th>
+            <th>Conceito no MongoDB</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Banco de Dados (Database)</td>
+            <td>Banco de Dados (Database)</td>
+          </tr>
+          <tr>
+            <td>Tabela (Table)</td>
+            <td><strong>Coleção (Collection)</strong></td>
+          </tr>
+          <tr>
+            <td>Linha / Registro (Row / Record)</td>
+            <td><strong>Documento (Document)</strong></td>
+          </tr>
+          <tr>
+            <td>Coluna (Column)</td>
+            <td><strong>Campo (Field)</strong></td>
+          </tr>
+          <tr>
+            <td>Chave Primária (Primary Key - PK)</td>
+            <td><strong>Campo <code>_id</code></strong> (gerado automaticamente via <code>ObjectId</code>)</td>
+          </tr>
+          <tr>
+            <td>Junção (JOIN)</td>
+            <td>Documentos Embutidos ou <code>$lookup</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>O Formato BSON e o Campo ObjectId</h2>
+      <p>
+        Internamente, o MongoDB converte os documentos JSON recebidos para o formato **BSON (Binary JSON)**. O BSON adiciona suporte a tipos de dados estendidos (como datas, números inteiros de 64 bits e dados binários) e otimiza a velocidade de varredura e indexação.
+      </p>
+
+      <h3>Exemplo de Documento BSON no MongoDB:</h3>
+<pre><code>{
+  "_id": ObjectId("65e9b8f21c9d4b001a2b3c4d"),
+  "nome": "Curso de Banco de Dados",
+  "categoria": "Tecnologia",
+  "cargaHoraria": 80,
+  "ativo": true,
+  "dataCriacao": ISODate("2026-03-01T10:00:00Z"),
+  "tags": ["sql", "nosql", "mongodb"]
+}</code></pre>
+
+      <div class="box-destaque">
+        <p><strong>O Campo <code>_id</code>:</strong> Todo documento armazenado em uma coleção do MongoDB requer obrigatoriamente uma chave primária única chamada <code>_id</code>. Se não for especificada manualmente na inserção, o MongoDB gera um valor padrão do tipo <strong>ObjectId</strong> (composto por 12 bytes que incluem timestamp, ID da máquina, ID do processo e contador incremental).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Explique o que é um banco de dados **orientado a documentos** e cite duas vantagens dessa abordagem em relação às tabelas SQL.</li>
+        <li>Qual a diferença entre os formatos **JSON** e **BSON** no contexto do MongoDB?</li>
+        <li>O que é o campo <code>_id</code> e por que o valor do tipo <code>ObjectId</code> é amplamente utilizado como chave primária padrão?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-88.html" class="btn-nav">← Aula Anterior: Modelagem NoSQL</a>
+      <a href="aula-90.html" class="btn-nav">Próxima Aula: Introdução ao Cassandra →</a>
+    </div>
+  </main>
+
+</body>
+</html>

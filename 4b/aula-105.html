@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 105: Monitoramento de Performance no MongoDB | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (4º Bimestre) -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>4º Bimestre — NoSQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 22: Introdução ao NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-85.html">Aula 85: Conceitos e Tipos NoSQL</a></li>
+        <li><a href="aula-86.html">Aula 86: Comparação SQL vs NoSQL</a></li>
+        <li><a href="aula-87.html">Aula 87: Arquitetura de Bancos NoSQL</a></li>
+        <li><a href="aula-88.html">Aula 88: Modelagem de Dados NoSQL</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 23: Ferramentas NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-89.html">Aula 89: Introdução ao MongoDB</a></li>
+        <li><a href="aula-90.html">Aula 90: Introdução ao Cassandra</a></li>
+        <li><a href="aula-91.html">Aula 91: Introdução ao Redis</a></li>
+        <li><a href="aula-92.html">Aula 92: Introdução ao Neo4j</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 24: Operações e Consultas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-93.html">Aula 93: CRUD no MongoDB</a></li>
+        <li><a href="aula-94.html">Aula 94: Consultas Avançadas MongoDB</a></li>
+        <li><a href="aula-95.html">Aula 95: Operações no Cassandra</a></li>
+        <li><a href="aula-96.html">Aula 96: Consultas no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 25: Arquitetura e Escalabilidade</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-97.html">Aula 97: Replicação no MongoDB</a></li>
+        <li><a href="aula-98.html">Aula 98: Sharding no MongoDB</a></li>
+        <li><a href="aula-99.html">Aula 99: Escalabilidade no Cassandra</a></li>
+        <li><a href="aula-100.html">Aula 100: Escalabilidade no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 26: Segurança e Backup</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-101.html">Aula 101: Segurança no MongoDB</a></li>
+        <li><a href="aula-102.html">Aula 102: Backup e Recuperação MongoDB</a></li>
+        <li><a href="aula-103.html">Aula 103: Segurança no Cassandra</a></li>
+        <li><a href="aula-104.html">Aula 104: Backup e Recuperação Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 27: Performance e Monitoramento</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-105.html" class="active">Aula 105: Monitoramento no MongoDB</a></li>
+        <li><a href="aula-106.html">Aula 106: Otimização no MongoDB</a></li>
+        <li><a href="aula-107.html">Aula 107: Monitoramento no Cassandra</a></li>
+        <li><a href="aula-108.html">Aula 108: Otimização no Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 28: Casos de Uso Práticos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-109.html">Aula 109: Aplicações de MongoDB</a></li>
+        <li><a href="aula-110.html">Aula 110: Aplicações de Cassandra</a></li>
+        <li><a href="aula-111.html">Aula 111: Aplicações de Redis</a></li>
+        <li><a href="aula-112.html">Aula 112: Aplicações de Neo4j</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 27 — Aula 1</div>
+      <h1>Monitoramento de Performance no MongoDB</h1>
+    </header>
+
+    <section class="card">
+      <h2>A Importância do Monitoramento em Tempo Real</h2>
+      <p>
+        Identificar gargalos de I/O, consumo excessivo de memória RAM ou consultas mal otimizadas antes que causem lentidão para o usuário final é o objetivo central do monitoramento continuo num ambiente de banco de dados NoSQL.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>1. Ferramentas Utilitárias CLI (`mongostat` e `mongotop`)</h2>
+      
+      <h3>mongostat</h3>
+      <p>
+        Exibe uma visão em tempo real do volume de operações por segundo (inserts, queries, updates, deletes), uso de conexões ativas, conexões pendentes e uso de memória da instância.
+      </p>
+<pre><code># Monitorando estatísticas atualizadas a cada 1 segundo
+mongostat --uri="mongodb://adminEscola:senha@localhost:27017" 1</code></pre>
+
+      <h3>mongotop</h3>
+      <p>
+        Acompanha o tempo acumulado que a instância <code>mongod</code> gasta realizando operações de leitura e escrita em cada coleção individualmente.
+      </p>
+<pre><code># Verificando as coleções com maior tempo de I/O
+mongotop --uri="mongodb://adminEscola:senha@localhost:27017" 2</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>2. Diagnóstico no Shell (`serverStatus` e `dbStats`)</h2>
+      <p>
+        No <code>mongosh</code>, comandos administrativos ajudam a inspecionar a saúde do banco:
+      </p>
+
+<pre><code>// Resumo geral da instância (operações de rede, cache WiredTiger, conexões)
+db.serverStatus();
+
+// Estatísticas de tamanho de armazenamento e índices do banco atual
+db.stats();
+
+// Estatísticas detalhadas de uma coleção específica
+db.alunos.stats();</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>3. Identificando Consultas Lentas com o Database Profiler</h2>
+      <p>
+        O <strong>Database Profiler</strong> captura detalhes sobre operações de banco de dados executadas no servidor, gravando esses eventos na coleção especial <code>system.profile</code>.
+      </p>
+
+      <h3>Níveis de Profiling:</h3>
+      <ul>
+        <li><code>0</code>: Desativado (padrão).</li>
+        <li><code>1</code>: Captura apenas operações lentas (superiores ao limite definido por <code>slowms</code>).</li>
+        <li><code>2</code>: Captura todas as operações (usado apenas em diagnósticos pontuais devido ao overhead).</li>
+      </ul>
+
+<pre><code>// Ativando o profiler para capturar consultas que demorem mais de 100ms
+db.setProfilingLevel(1, { slowms: 100 });
+
+// Consultando as 5 operações mais lentas registradas no profiler
+db.system.profile.find().sort({ millis: -1 }).limit(5);</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Qual é a diferença funcional entre as ferramentas utilitárias <strong>mongostat</strong> e <strong>mongotop</strong>?</li>
+        <li>O que indica o valor do nível de profiling igual a <code>1</code> ao utilizar o <strong>Database Profiler</strong> no MongoDB?</li>
+        <li>Em qual coleção do sistema o MongoDB armazena o histórico das consultas lentas capturadas pelo Profiler?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-104.html" class="btn-nav">← Aula Anterior: Backup no Cassandra</a>
+      <a href="aula-106.html" class="btn-nav">Próxima Aula: Otimização no MongoDB →</a>
+    </div>
+  </main>
+
+</body>
+</html>

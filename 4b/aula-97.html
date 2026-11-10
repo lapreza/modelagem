@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 97: Replicação de Dados no MongoDB | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (4º Bimestre) -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>4º Bimestre — NoSQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 22: Introdução ao NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-85.html">Aula 85: Conceitos e Tipos NoSQL</a></li>
+        <li><a href="aula-86.html">Aula 86: Comparação SQL vs NoSQL</a></li>
+        <li><a href="aula-87.html">Aula 87: Arquitetura de Bancos NoSQL</a></li>
+        <li><a href="aula-88.html">Aula 88: Modelagem de Dados NoSQL</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 23: Ferramentas NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-89.html">Aula 89: Introdução ao MongoDB</a></li>
+        <li><a href="aula-90.html">Aula 90: Introdução ao Cassandra</a></li>
+        <li><a href="aula-91.html">Aula 91: Introdução ao Redis</a></li>
+        <li><a href="aula-92.html">Aula 92: Introdução ao Neo4j</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 24: Operações e Consultas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-93.html">Aula 93: CRUD no MongoDB</a></li>
+        <li><a href="aula-94.html">Aula 94: Consultas Avançadas MongoDB</a></li>
+        <li><a href="aula-95.html">Aula 95: Operações no Cassandra</a></li>
+        <li><a href="aula-96.html">Aula 96: Consultas no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 25: Arquitetura e Escalabilidade</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-97.html" class="active">Aula 97: Replicação no MongoDB</a></li>
+        <li><a href="aula-98.html">Aula 98: Sharding no MongoDB</a></li>
+        <li><a href="aula-99.html">Aula 99: Escalabilidade no Cassandra</a></li>
+        <li><a href="aula-100.html">Aula 100: Escalabilidade no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 26: Segurança e Backup</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-101.html">Aula 101: Segurança no MongoDB</a></li>
+        <li><a href="aula-102.html">Aula 102: Backup e Recuperação MongoDB</a></li>
+        <li><a href="aula-103.html">Aula 103: Segurança no Cassandra</a></li>
+        <li><a href="aula-104.html">Aula 104: Backup e Recuperação Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 27: Performance e Monitoramento</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-105.html">Aula 105: Monitoramento no MongoDB</a></li>
+        <li><a href="aula-106.html">Aula 106: Otimização no MongoDB</a></li>
+        <li><a href="aula-107.html">Aula 107: Monitoramento no Cassandra</a></li>
+        <li><a href="aula-108.html">Aula 108: Otimização no Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 28: Casos de Uso Práticos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-109.html">Aula 109: Aplicações de MongoDB</a></li>
+        <li><a href="aula-110.html">Aula 110: Aplicações de Cassandra</a></li>
+        <li><a href="aula-111.html">Aula 111: Aplicações de Redis</a></li>
+        <li><a href="aula-112.html">Aula 112: Aplicações de Neo4j</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 25 — Aula 1</div>
+      <h1>Replicação de Dados no MongoDB (Replica Sets)</h1>
+    </header>
+
+    <section class="card">
+      <h2>O que é um Replica Set?</h2>
+      <p>
+        Um <strong>Replica Set</strong> no MongoDB é um grupo de instâncias <code>mongod</code> que mantêm o mesmo conjunto de dados. A replicação garante **alta disponibilidade**, **redundância de dados** e **tolerância a falhas** em ambientes de produção.
+      </p>
+      <div class="box-destaque">
+        <p><strong>Configuração Mínima Recomendada:</strong> Um Replica Set de produção deve conter no mínimo 3 nós votantes (por exemplo: 1 Primário e 2 Secundários) para garantir quórum nas eleições automatizadas.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Membros de um Replica Set</h2>
+
+      <h3>1. Nó Primário (Primary)</h3>
+      <p>
+        É o único nó do conjunto que recebe todas as operações de <strong>escrita</strong> (<code>insert</code>, <code>update</code>, <code>delete</code>). O nó primário regista todas as suas alterações num log especial chamado <strong>oplog</strong> (Operations Log).
+      </p>
+
+      <h3>2. Nós Secundários (Secondary)</h3>
+      <p>
+        Replicam o <em>oplog</em> do nó primário e aplicam as operações nos seus próprios conjuntos de dados de forma assíncrona. Podem atender a operações de **leitura** (caso a aplicação utilize a configuração de <em>Read Preference</em> adequada).
+      </p>
+
+      <h3>3. Nós Árbitros (Arbiter)</h3>
+      <p>
+        Não armazenam dados e não podem tornar-se primários. A sua única função é participar nas **eleições** de um novo nó primário fornecendo um voto de desempate, reduzindo custos de infraestrutura.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Oplog e o Processo de Failover</h2>
+      <p>
+        Quando o nó primário fica indisponível (por falha de hardware ou perda de conexão), os nós secundários realizam uma **eleição automática** para escolher o novo primário.
+      </p>
+
+<pre><code>// Inicializando um Replica Set via mongosh
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "mongo1.escola.internal:27017" },
+    { _id: 1, host: "mongo2.escola.internal:27017" },
+    { _id: 2, host: "mongo3.escola.internal:27017" }
+  ]
+});
+
+// Verificando o estado do cluster de replicação
+rs.status();</code></pre>
+
+      <div class="box-destaque">
+        <p><strong>Read Preference:</strong> A aplicação pode decidir onde ler os dados: <code>primary</code> (padrão, garante consistência total), <code>secondary</code> (aumenta o throughput de leitura, aceita consistência eventual) ou <code>primaryPreferred</code>.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Qual é o papel do <strong>oplog (Operations Log)</strong> na replicação de dados entre o nó primário e os nós secundários do MongoDB?</li>
+        <li>O que acontece com as operações de escrita da aplicação caso o nó <strong>Primary</strong> de um Replica Set fique offline repentinamente?</li>
+        <li>Em que cenário de infraestrutura a inclusão de um nó <strong>Arbiter</strong> é recomendada no lugar de um nó <strong>Secondary</strong> completo?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-96.html" class="btn-nav">← Aula Anterior: Consultas no Redis</a>
+      <a href="aula-98.html" class="btn-nav">Próxima Aula: Sharding no MongoDB →</a>
+    </div>
+  </main>
+
+</body>
+</html>

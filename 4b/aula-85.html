@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 85: Conceitos e Tipos de Bancos NoSQL | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    table.exemplo-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.9rem;
+    }
+    table.exemplo-tabela th, table.exemplo-tabela td {
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      text-align: left;
+    }
+    table.exemplo-tabela th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+    .btn-nav.disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (4º Bimestre) -->
+  <aside>
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>4º Bimestre — NoSQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 22: Introdução ao NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-85.html" class="active">Aula 85: Conceitos e Tipos NoSQL</a></li>
+        <li><a href="aula-86.html">Aula 86: Comparação SQL vs NoSQL</a></li>
+        <li><a href="aula-87.html">Aula 87: Arquitetura de Bancos NoSQL</a></li>
+        <li><a href="aula-88.html">Aula 88: Modelagem de Dados NoSQL</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 23: Ferramentas NoSQL</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-89.html">Aula 89: Introdução ao MongoDB</a></li>
+        <li><a href="aula-90.html">Aula 90: Introdução ao Cassandra</a></li>
+        <li><a href="aula-91.html">Aula 91: Introdução ao Redis</a></li>
+        <li><a href="aula-92.html">Aula 92: Introdução ao Neo4j</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 24: Operações e Consultas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-93.html">Aula 93: CRUD no MongoDB</a></li>
+        <li><a href="aula-94.html">Aula 94: Consultas Avançadas MongoDB</a></li>
+        <li><a href="aula-95.html">Aula 95: Operações no Cassandra</a></li>
+        <li><a href="aula-96.html">Aula 96: Consultas no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 25: Arquitetura e Escalabilidade</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-97.html">Aula 97: Replicação no MongoDB</a></li>
+        <li><a href="aula-98.html">Aula 98: Sharding no MongoDB</a></li>
+        <li><a href="aula-99.html">Aula 99: Escalabilidade no Cassandra</a></li>
+        <li><a href="aula-100.html">Aula 100: Escalabilidade no Redis</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 26: Segurança e Backup</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-101.html">Aula 101: Segurança no MongoDB</a></li>
+        <li><a href="aula-102.html">Aula 102: Backup e Recuperação MongoDB</a></li>
+        <li><a href="aula-103.html">Aula 103: Segurança no Cassandra</a></li>
+        <li><a href="aula-104.html">Aula 104: Backup e Recuperação Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 27: Performance e Monitoramento</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-105.html">Aula 105: Monitoramento no MongoDB</a></li>
+        <li><a href="aula-106.html">Aula 106: Otimização no MongoDB</a></li>
+        <li><a href="aula-107.html">Aula 107: Monitoramento no Cassandra</a></li>
+        <li><a href="aula-108.html">Aula 108: Otimização no Cassandra</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 28: Casos de Uso Práticos</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-109.html">Aula 109: Aplicações de MongoDB</a></li>
+        <li><a href="aula-110.html">Aula 110: Aplicações de Cassandra</a></li>
+        <li><a href="aula-111.html">Aula 111: Aplicações de Redis</a></li>
+        <li><a href="aula-112.html">Aula 112: Aplicações de Neo4j</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 22 — Aula 1</div>
+      <h1>Conceitos e Tipos de Bancos de Dados NoSQL</h1>
+    </header>
+
+    <section class="card">
+      <h2>O que é o Movimento NoSQL?</h2>
+      <p>
+        O termo <strong>NoSQL</strong> (originalmente interpretado como <em>"No SQL"</em> e atualmente consagrado como <strong>"Not Only SQL"</strong> — Não Apenas SQL) refere-se a uma ampla classe de Sistemas de Gerenciamento de Banco de Dados que diferem dos modelos relacionais tradicionais (RDBMS).
+      </p>
+      <p>
+        Surgiu no final dos anos 2000 para responder aos desafios da Web 2.0, Big Data e aplicações modernas em nuvem, que exigem manipulação de volumes gigantescos de dados não estruturados, altíssima velocidade de leitura/escrita e escala horizontal dinâmica.
+      </p>
+      <div class="box-destaque">
+        <p><strong>Diferencial Chave:</strong> Enquanto o SQL enfatiza a consistência estrita e tabelas com esquemas rígidos (schema-rigid), o NoSQL prioriza flexibilidade de dados (schema-less), alta disponibilidade e escalabilidade distribuída.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Os 4 Modelos Principais de Bancos NoSQL</h2>
+      <p>Ao contrário do modelo relacional (baseado estritamente em tabelas, linhas e colunas), os bancos NoSQL dividem-se em 4 famílias fundamentais segundo a sua estrutura de armazenamento:</p>
+
+      <table class="exemplo-tabela">
+        <thead>
+          <tr>
+            <th>Modelo</th>
+            <th>Estrutura Principal</th>
+            <th>Principais Casos de Uso</th>
+            <th>Exemplos de Tecnologias</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Documentos</strong></td>
+            <td>Documentos hierárquicos (JSON / BSON / XML).</td>
+            <td>Catálogos de produtos, E-commerce, CMS, Perfis de usuários.</td>
+            <td>MongoDB, CouchDB</td>
+          </tr>
+          <tr>
+            <td><strong>Chave-Valor (Key-Value)</strong></td>
+            <td>Pares simples de chave e valor associado.</td>
+            <td>Cache em memória, gerenciamento de sessões, carrinhos de compras.</td>
+            <td>Redis, Amazon DynamoDB</td>
+          </tr>
+          <tr>
+            <td><strong>Família de Colunas (Wide-Column)</strong></td>
+            <td>Colunas organizadas dinamicamente em famílias.</td>
+            <td>Análise de Big Data, logs de acesso, séries temporais, IoT.</td>
+            <td>Apache Cassandra, HBase</td>
+          </tr>
+          <tr>
+            <td><strong>Grafos (Graph)</strong></td>
+            <td>Nós (entidades) e Arestas (relacionamentos diretos).</td>
+            <td>Redes sociais, motores de recomendação, detecção de fraudes.</td>
+            <td>Neo4j, Amazon Neptune</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Motivações para o Uso do NoSQL</h2>
+      <ul>
+        <li><strong>Esquema Dinâmico (Schema-less):</strong> Permite alterar a estrutura dos dados armazenados sem a necessidade de comandos lentos como <code>ALTER TABLE</code>.</li>
+        <li><strong>Escalabilidade Horizontal (Scale-Out):</strong> Facilidade para distribuir a carga adicionando servidores populares comuns ao cluster, ao invés de investir em um único servidor gigante e caro (Scale-Up).</li>
+        <li><strong>Desempenho em Alta Carga:</strong> Otimização para operações específicas em memória ou disco sem o gargalo de múltiplos <code>JOINs</code> relacionais complexos.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Explique o significado atual da sigla <strong>NoSQL</strong> e qual problema histórico essa arquitetura veio resolver.</li>
+        <li>Se você estivesse desenvolvendo um sistema de armazenamento temporário de sessões de usuário com tempo de expiração curto e altíssima velocidade, qual modelo NoSQL escolheria e por quê?</li>
+        <li>Diferencie um modelo orientado a <strong>Documentos</strong> de um modelo orientado a <strong>Grafos</strong> em termos de estrutura e aplicação.</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="#" class="btn-nav disabled">← Bimestre Anterior</a>
+      <a href="aula-86.html" class="btn-nav">Próxima Aula: Comparação SQL vs NoSQL →</a>
+    </div>
+  </main>
+
+</body>
+</html>

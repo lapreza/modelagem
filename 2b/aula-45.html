@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 45: Conceitos de DDL e DML | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (2º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="./index.html" class="active">2ºB</a>
+        <a href="../3b/index.html">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>2º Bimestre — SQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 8: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-29.html">Aula 29: Introdução ao SELECT</a></li>
+        <li><a href="aula-30.html">Aula 30: Funções de Agregação</a></li>
+        <li><a href="aula-31.html">Aula 31: Cláusulas de Junção (JOIN)</a></li>
+        <li><a href="aula-32.html">Aula 32: Subconsultas e Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 9: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-33.html">Aula 33: Operadores de Conjunto</a></li>
+        <li><a href="aula-34.html">Aula 34: Cláusula HAVING</a></li>
+        <li><a href="aula-35.html">Aula 35: Consultas Complexas em SQL</a></li>
+        <li><a href="aula-36.html">Aula 36: Consultas Eficientes</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 10: Comandos CRUD</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-37.html">Aula 37: Inserção de Dados (INSERT)</a></li>
+        <li><a href="aula-38.html">Aula 38: Atualização de Dados (UPDATE)</a></li>
+        <li><a href="aula-39.html">Aula 39: Exclusão de Dados (DELETE)</a></li>
+        <li><a href="aula-40.html">Aula 40: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 11: CRUD Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-41.html">Aula 41: Comandos MERGE</a></li>
+        <li><a href="aula-42.html">Aula 42: Backup e Restauração</a></li>
+        <li><a href="aula-43.html">Aula 43: Importação e Exportação</a></li>
+        <li><a href="aula-44.html">Aula 44: Procedures e Functions</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 12: DDL vs DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-45.html" class="active">Aula 45: Conceitos DDL e DML</a></li>
+        <li><a href="aula-46.html">Aula 46: Comandos DDL</a></li>
+        <li><a href="aula-47.html">Aula 47: Criação de Tabelas e Índices</a></li>
+        <li><a href="aula-48.html">Aula 48: Modificação de Estruturas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 13: DML Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-49.html">Aula 49: INSERT em Tabelas Relacionadas</a></li>
+        <li><a href="aula-50.html">Aula 50: UPDATE em Tabelas Relacionadas</a></li>
+        <li><a href="aula-51.html">Aula 51: DELETE em Tabelas Relacionadas</a></li>
+        <li><a href="aula-52.html">Aula 52: Triggers e Automação</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 14: Análise e Modelagem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-53.html">Aula 53: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-54.html">Aula 54: Modelagem com UML</a></li>
+        <li><a href="aula-55.html">Aula 55: Análise de Dados com SQL</a></li>
+        <li><a href="aula-56.html">Aula 56: Projeto Final de Modelagem</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 12 — Aula 1</div>
+      <h1>Conceitos de DDL e DML</h1>
+    </header>
+
+    <section class="card">
+      <h2>As Divisões da Linguagem SQL</h2>
+      <p>
+        A linguagem SQL (Structured Query Language) é subdividida em várias categorias de comandos funcionais. As duas subdivisões mais importantes para a construção e manutenção de bancos de dados relacionais são a **DDL (Data Definition Language)** e a **DML (Data Manipulation Language)**.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>1. DDL — Data Definition Language (Linguagem de Definição de Dados)</h2>
+      <p>
+        Os comandos DDL são responsáveis por criar, alterar e excluir a **estrutura física e lógica dos objetos** do banco de dados (como tabelas, índices, visões, esquemas e gatilhos). Eles definem os recipientes onde os dados serão armazenados.
+      </p>
+
+      <ul>
+        <li><code>CREATE</code>: Cria um novo objeto no banco de dados (ex: `CREATE TABLE`, `CREATE INDEX`).</li>
+        <li><code>ALTER</code>: Modifica a estrutura de um objeto existente (ex: adicionar ou remover colunas).</li>
+        <li><code>DROP</code>: Exclui permanentemente um objeto do banco de dados.</li>
+        <li><code>TRUNCATE</code>: Desaloca o espaço de armazenamento de uma tabela, esvaziando-a rapidamente.</li>
+      </ul>
+
+      <div class="box-destaque">
+        <p><strong>Auto-Commit Implicito:</strong> Na maioria dos SGBDs (como MySQL e Oracle), as instruções DDL realizam confirmação (commit) automática e imediata. Isso significa que comandos como <code>DROP TABLE</code> ou <code>ALTER TABLE</code> não podem ser revertidos com <code>ROLLBACK</code>.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. DML — Data Manipulation Language (Linguagem de Manipulação de Dados)</h2>
+      <p>
+        Os comandos DML trabalham diretamente sobre o **conteúdo (linhas e registros)** armazenado nas tabelas. Eles permitem inserir, modificar e remover as informações sem alterar o esquema da tabela.
+      </p>
+
+      <ul>
+        <li><code>INSERT</code>: Adiciona novos registros à tabela.</li>
+        <li><code>UPDATE</code>: Modifica dados de registros existentes.</li>
+        <li><code>DELETE</code>: Remove registros específicos da tabela.</li>
+        <li><code>MERGE</code>: Realiza inserções ou atualizações condicionais.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. Quadro Comparativo Resumido</h2>
+      <p>
+        Entender o escopo de atuação de cada grupo de comandos é essencial para evitar alterações indesejadas em ambientes de produção:
+      </p>
+
+<pre><code>+-----------------------+---------------------------------------+----------------------------------------+
+| Característica        | DDL (Data Definition Language)        | DML (Data Manipulation Language)       |
++-----------------------+---------------------------------------+----------------------------------------+
+| Alvo de Atuação       | Estrutura do Banco (Tabelas, Índices) | Registros / Dados das Tabelas          |
+| Comandos Principais   | CREATE, ALTER, DROP, TRUNCATE         | INSERT, UPDATE, DELETE, MERGE          |
+| Efeito na Estrutura   | Altera colunas, tipos e constraints   | Não altera a estrutura das tabelas     |
+| Reversão (ROLLBACK)   | Geralmente irreversível (Auto-Commit) | Transacional (Cancelável com ROLLBACK) |
++-----------------------+---------------------------------------+----------------------------------------+</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Atividade de Fixação</h2>
+      <ol>
+        <li>Qual é a diferença fundamental entre o objetivo de um comando <strong>DDL</strong> e de um comando <strong>DML</strong>?</li>
+        <li>Classifique cada um dos comandos a seguir como DDL ou DML: <code>ALTER TABLE</code>, <code>INSERT INTO</code>, <code>DROP INDEX</code> e <code>UPDATE</code>.</li>
+        <li>Por que o comando <code>TRUNCATE TABLE</code> é classificado como DDL, enquanto o <code>DELETE</code> é classificado como DML?</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-44.html" class="btn-nav">← Aula Anterior: Procedures e Functions (Semana 11)</a>
+      <a href="aula-46.html" class="btn-nav">Próxima Aula: Comandos DDL →</a>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 56: Projeto Final de Modelagem e SQL | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .back-home {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .back-home:hover {
+      text-decoration: underline;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a.active {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin: 15px 0 10px 0;
+    }
+    section.card p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .box-destaque {
+      background-color: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .box-destaque p {
+      margin-bottom: 0;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .btn-nav {
+      background-color: #0284c7;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-nav:hover {
+      background-color: #0369a1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (2º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="./index.html" class="active">2ºB</a>
+        <a href="../3b/index.html">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="index.html" class="back-home">← Voltar à Página Inicial</a>
+    <h2>2º Bimestre — SQL</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 8: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-29.html">Aula 29: Introdução ao SELECT</a></li>
+        <li><a href="aula-30.html">Aula 30: Funções de Agregação</a></li>
+        <li><a href="aula-31.html">Aula 31: Cláusulas de Junção (JOIN)</a></li>
+        <li><a href="aula-32.html">Aula 32: Subconsultas e Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 9: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-33.html">Aula 33: Operadores de Conjunto</a></li>
+        <li><a href="aula-34.html">Aula 34: Cláusula HAVING</a></li>
+        <li><a href="aula-35.html">Aula 35: Consultas Complexas em SQL</a></li>
+        <li><a href="aula-36.html">Aula 36: Consultas Eficientes</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 10: Comandos CRUD</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-37.html">Aula 37: Inserção de Dados (INSERT)</a></li>
+        <li><a href="aula-38.html">Aula 38: Atualização de Dados (UPDATE)</a></li>
+        <li><a href="aula-39.html">Aula 39: Exclusão de Dados (DELETE)</a></li>
+        <li><a href="aula-40.html">Aula 40: Transações e Concorrência</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 11: CRUD Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-41.html">Aula 41: Comandos MERGE</a></li>
+        <li><a href="aula-42.html">Aula 42: Backup e Restauração</a></li>
+        <li><a href="aula-43.html">Aula 43: Importação e Exportação</a></li>
+        <li><a href="aula-44.html">Aula 44: Procedures e Functions</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 12: DDL vs DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-45.html">Aula 45: Conceitos DDL e DML</a></li>
+        <li><a href="aula-46.html">Aula 46: Comandos DDL</a></li>
+        <li><a href="aula-47.html">Aula 47: Criação de Tabelas e Índices</a></li>
+        <li><a href="aula-48.html">Aula 48: Modificação de Estruturas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 13: DML Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-49.html">Aula 49: INSERT em Tabelas Relacionadas</a></li>
+        <li><a href="aula-50.html">Aula 50: UPDATE em Tabelas Relacionadas</a></li>
+        <li><a href="aula-51.html">Aula 51: DELETE em Tabelas Relacionadas</a></li>
+        <li><a href="aula-52.html">Aula 52: Triggers e Automação</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 14: Análise e Modelagem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-53.html">Aula 53: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-54.html">Aula 54: Modelagem com UML</a></li>
+        <li><a href="aula-55.html">Aula 55: Análise de Dados com SQL</a></li>
+        <li><a href="aula-56.html" class="active">Aula 56: Projeto Final de Modelagem</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Semana 14 — Aula 4 (Encerramento do 2º Bimestre)</div>
+      <h1>Projeto Final de Modelagem e SQL</h1>
+    </header>
+
+    <section class="card">
+      <h2>Escopo do Projeto Integrador</h2>
+      <p>
+        Nesta aula de consolidação do 2º Bimestre, projetaremos e implementaremos de ponta a ponta o banco de dados relacional de uma **Plataforma de Gestão de Biblioteca Digital e Empréstimos**, aplicando normalização até a 3FN, criação de índices, carga transacional, gatilhos de automação e consultas analíticas.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Etapa 1: Implementação Física Normalizada (DDL e Índices)</h2>
+      <p>
+        As entidades são separadas para eliminar dependências parciais e transitivas (3FN), definindo chaves primárias, estrangeiras e índices nas colunas de busca frequente:
+      </p>
+
+<pre><code>CREATE TABLE categorias (
+    id_categoria INT PRIMARY KEY,
+    nome_categoria VARCHAR(60) NOT NULL UNIQUE
+);
+
+CREATE TABLE livros (
+    id_livro INT PRIMARY KEY,
+    isbn VARCHAR(17) NOT NULL UNIQUE,
+    titulo VARCHAR(150) NOT NULL,
+    id_categoria INT NOT NULL REFERENCES categorias(id_categoria),
+    exemplares_disponiveis INT NOT NULL CHECK (exemplares_disponiveis >= 0)
+);
+
+CREATE TABLE leitores (
+    id_leitor INT PRIMARY KEY,
+    nome_leitor VARCHAR(100) NOT NULL,
+    email VARCHAR(120) NOT NULL UNIQUE,
+    status_conta VARCHAR(20) DEFAULT 'Ativo'
+);
+
+CREATE TABLE emprestimos (
+    id_emprestimo INT PRIMARY KEY,
+    id_livro INT NOT NULL REFERENCES livros(id_livro),
+    id_leitor INT NOT NULL REFERENCES leitores(id_leitor),
+    data_retirada DATE NOT NULL DEFAULT CURRENT_DATE,
+    data_devolucao_prevista DATE NOT NULL,
+    data_devolucao_real DATE NULL
+);
+
+-- Índices para acelerar junções e filtros por leitor/livro
+CREATE INDEX idx_emprestimos_leitor ON emprestimos(id_leitor);
+CREATE INDEX idx_emprestimos_livro ON emprestimos(id_livro);</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Etapa 2: Carga Inicial Transacional (DML + ACID)</h2>
+      <p>
+        Utilizamos uma transação explícita para inserir os dados iniciais respeitando a hierarquia entre tabelas pai e filha:
+      </p>
+
+<pre><code>BEGIN TRANSACTION;
+
+INSERT INTO categorias (id_categoria, nome_categoria) VALUES 
+    (1, 'Banco de Dados'),
+    (2, 'Engenharia de Software');
+
+INSERT INTO livros (id_livro, isbn, titulo, id_categoria, exemplares_disponiveis) VALUES 
+    (101, '978-85-7522-001', 'Sistemas de Banco de Dados', 1, 5),
+    (102, '978-85-7522-002', 'Arquitetura Limpa', 2, 3);
+
+INSERT INTO leitores (id_leitor, nome_leitor, email) VALUES 
+    (501, 'Fernanda Lima', 'fernanda@email.com'),
+    (502, 'Ricardo Alves', 'ricardo@email.com');
+
+INSERT INTO emprestimos (id_emprestimo, id_livro, id_leitor, data_retirada, data_devolucao_prevista) VALUES 
+    (9001, 101, 501, '2026-11-01', '2026-11-15'),
+    (9002, 102, 502, '2026-11-05', '2026-11-19');
+
+COMMIT;</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Etapa 3: Automação de Estoque com Trigger</h2>
+      <p>
+        Sempre que um novo empréstimo for registrado, o saldo de exemplares disponíveis na tabela <code>livros</code> deve ser reduzido automaticamente:
+      </p>
+
+<pre><code>DELIMITER //
+CREATE TRIGGER trg_BaixaExemplarEmprestimo
+AFTER INSERT ON emprestimos
+FOR EACH ROW
+BEGIN
+    UPDATE livros
+    SET exemplares_disponiveis = exemplares_disponiveis - 1
+    WHERE id_livro = NEW.id_livro;
+END //
+DELIMITER ;</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>Etapa 4: Relatórios Analíticos e View Gerencial</h2>
+      <p>
+        Por fim, encapsulamos uma consulta com <code>INNER JOIN</code>, agregação e filtro <code>HAVING</code> em uma <code>VIEW</code> para monitorar empréstimos em aberto:
+      </p>
+
+<pre><code>CREATE VIEW vw_emprestimos_ativos AS
+SELECT 
+    l.nome_leitor,
+    lv.titulo AS livro_emprestado,
+    c.nome_categoria,
+    e.data_retirada,
+    e.data_devolucao_prevista
+FROM emprestimos e
+INNER JOIN leitores l ON e.id_leitor = l.id_leitor
+INNER JOIN livros lv ON e.id_livro = lv.id_livro
+INNER JOIN categorias c ON lv.id_categoria = c.id_categoria
+WHERE e.data_devolucao_real IS NULL;
+
+-- Consultando empréstimos vencidos
+SELECT * FROM vw_emprestimos_ativos 
+WHERE data_devolucao_prevista < CURRENT_DATE;</code></pre>
+
+      <div class="box-destaque">
+        <p><strong>Conclusão do 2º Bimestre:</strong> Com a entrega deste projeto integrador, concluímos toda a trilha de Linguagem SQL e Manipulação de Dados (Aulas 29 a 56). No 3º Bimestre avançaremos para Administração, Segurança, Otimização Avançada e Arquitetura de SGBDs!</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Desafio Prático de Encerramento</h2>
+      <ol>
+        <li>Implemente um segundo Trigger chamado <code>trg_DevolucaoExemplar</code> (<code>AFTER UPDATE ON emprestimos</code>) que incremente <code>exemplares_disponiveis</code> em +1 na tabela <code>livros</code> sempre que <code>OLD.data_devolucao_real IS NULL</code> e <code>NEW.data_devolucao_real IS NOT NULL</code>.</li>
+        <li>Escreva uma consulta utilizando CTE (<code>WITH</code>) e <code>HAVING</code> que liste apenas as categorias que possuem mais de 10 empréstimos realizados no ano corrente.</li>
+        <li>Adicione uma regra de integridade que impeça a exclusão de um leitor da tabela <code>leitores</code> caso ele possua empréstimos vinculados no histórico.</li>
+      </ol>
+    </section>
+
+    <div class="nav-bottom">
+      <a href="aula-55.html" class="btn-nav">← Aula Anterior: Análise de Dados com SQL</a>
+      <a href="../3b/index.html" class="btn-nav">Avançar para o 3º Bimestre →</a>
+    </div>
+  </main>
+
+</body>
+</html>

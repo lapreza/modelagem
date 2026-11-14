@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 78: Monitoramento de Performance | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html" class="active">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 20 • Aula 78</div>
+      <h1>Aula 78: Monitoramento de Performance</h1>
+      <p>Aprenda a diagnosticar gargalos em bancos de dados relacionais utilizando planos de execução (EXPLAIN / EXPLAIN ANALYZE), logs de consultas lentas, métricas de hardware e memória (Buffer Hit Ratio) e estatísticas do otimizador.</p>
+    </header>
+
+    <!-- Seção 1: Planos de Execução (EXPLAIN e EXPLAIN ANALYZE) -->
+    <section class="card">
+      <h2>1. Planos de Execução: EXPLAIN e EXPLAIN ANALYZE</h2>
+      <p>Quando uma consulta SQL demora segundos ou minutos para responder, o primeiro passo do diagnóstico é inspecionar o <strong>Plano de Execução</strong> gerado pelo otimizador de consultas (<em>Query Planner</em>) do SGBD:</p>
+      <ul>
+        <li><strong><code>EXPLAIN SELECT ...</code>:</strong> Exibe o plano <strong>estimado</strong> pelo otimizador (custo relativo, ordem de junções e método de acesso) <em>sem executar</em> a consulta de fato.</li>
+        <li><strong><code>EXPLAIN ANALYZE SELECT ...</code>:</strong> <strong>Executa realmente</strong> a consulta e exibe tanto as estimativas quanto os tempos reais (em milissegundos), linhas processadas e leituras de memória/disco em cada etapa.</li>
+      </ul>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Operação no Plano</th>
+              <th>Significado</th>
+              <th>Diagnóstico de Performance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Seq Scan / Full Table Scan</strong></td>
+              <td>Lê a tabela inteira do início ao fim, bloco por bloco.</td>
+              <td>Normal em tabelas pequenas; <strong>alerta crítico</strong> em tabelas grandes com filtro <code>WHERE</code> seletivo (indica falta de índice ou função bloqueando o índice).</td>
+            </tr>
+            <tr>
+              <td><strong>Index Scan</strong></td>
+              <td>Percorre a árvore B-Tree do índice e busca as colunas restantes na tabela (<em>Heap</em>).</td>
+              <td><strong>Ótimo</strong> para consultas que retornam poucas linhas (alta seletividade).</td>
+            </tr>
+            <tr>
+              <td><strong>Index Only Scan</strong></td>
+              <td>Obtém todas as colunas solicitadas diretamente do próprio índice, sem tocar na tabela.</td>
+              <td><strong>Excelente</strong> (máxima velocidade de leitura, zero acesso extra à tabela).</td>
+            </tr>
+            <tr>
+              <td><strong>Sort / HashAggregate em Disco</strong></td>
+              <td>Ordenação ou agrupamento excedeu a memória RAM (<code>work_mem</code> / <code>sort_buffer</code>) e gravou arquivos temporários em disco.</td>
+              <td>Gargalo de I/O; exige ajuste de memória de sessão, criação de índice ordenado ou redução de colunas no <code>SELECT</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Seção 2: Diagnóstico Prático em SQL -->
+    <section class="card">
+      <h2>2. Ferramentas e Consultas de Diagnóstico no Dia a Dia</h2>
+      <p>Além de analisar consultas isoladas com <code>EXPLAIN ANALYZE</code>, os SGBDs mantêm visões internas de sistema (<em>DMVs / System Views</em>) para identificar consultas lentas recorrentes, bloqueios ativos e eficiência do cache em RAM:</p>
+
+      <pre><span class="sql-cmt">-- 1. Analisar o plano de execução real de uma consulta (PostgreSQL / MySQL 8+)</span>
+<span class="sql-kw">EXPLAIN ANALYZE</span>
+<span class="sql-kw">SELECT</span> id_pedido, data_pedido, valor_total
+<span class="sql-kw">FROM</span> pedidos
+<span class="sql-kw">WHERE</span> id_cliente = <span class="sql-num">1480</span>
+  <span class="sql-kw">AND</span> status = <span class="sql-str">'PENDENTE'</span>;
+
+<span class="sql-cmt">-- 2. Identificar sessões ativas travadas ou rodando há muito tempo (PostgreSQL)</span>
+<span class="sql-kw">SELECT</span> pid, usename, state, now() - query_start <span class="sql-kw">AS</span> duracao, wait_event_type, query
+<span class="sql-kw">FROM</span> pg_stat_activity
+<span class="sql-kw">WHERE</span> state &lt;&gt; <span class="sql-str">'idle'</span>
+<span class="sql-kw">ORDER BY</span> duracao <span class="sql-kw">DESC</span>;
+
+<span class="sql-cmt">-- 3. Verificar taxa de acerto de cache em memória (Buffer Cache Hit Ratio - PostgreSQL)</span>
+<span class="sql-kw">SELECT</span> 
+    <span class="sql-kw">ROUND</span>(<span class="sql-num">100.0</span> * <span class="sql-kw">SUM</span>(blks_hit) / <span class="sql-kw">NULLIF</span>(<span class="sql-kw">SUM</span>(blks_hit + blks_read), <span class="sql-num">0</span>), <span class="sql-num">2</span>) <span class="sql-kw">AS</span> cache_hit_pct
+<span class="sql-kw">FROM</span> pg_stat_database;
+
+<span class="sql-cmt">-- 4. Atualizar estatísticas da tabela para o otimizador escolher o melhor plano</span>
+<span class="sql-kw">ANALYZE</span> pedidos;</pre>
+
+      <div class="callout">
+        <strong>O que é um bom Buffer Cache Hit Ratio?</strong> Em sistemas transacionais (OLTP), o ideal é que <strong>mais de 98% a 99%</strong> das leituras de páginas ocorram diretamente na memória RAM (<code>blks_hit</code>), evitando leituras físicas lentas em disco (<code>blks_read</code>).
+      </div>
+    </section>
+
+    <!-- Seção 3: Os 4 Pilares do Monitoramento Contínuo -->
+    <section class="card">
+      <h2>3. Os 4 Pilares do Monitoramento Proativo</h2>
+      <ul>
+        <li><strong>Slow Query Log / <code>pg_stat_statements</code>:</strong> Registra todas as consultas que ultrapassam um limite de tempo (ex.: 500 ms) ou consomem mais tempo acumulado de CPU no dia, revelando onde a otimização trará maior impacto.</li>
+        <li><strong>Métricas de Infraestrutura (USE — <em>Utilization, Saturation, Errors</em>):</strong> Monitoramento contínuo de CPU, memória RAM, latência de disco (IOPS / throughput) e conexões ativas.</li>
+        <li><strong>Estatísticas Atualizadas e Manutenção (<code>ANALYZE</code> e <code>VACUUM</code>):</strong> O otimizador decide entre <em>Index Scan</em> e <em>Seq Scan</em> com base nas estatísticas de distribuição dos dados. Após cargas pesadas de <code>INSERT/UPDATE/DELETE</code>, estatísticas desatualizadas levam o SGBD a escolher planos lentos.</li>
+        <li><strong>Monitoramento de Locks e Waits:</strong> Acompanhar filas de espera (<em>Lock Waits</em>) para detectar transações longas bloqueando o restante da aplicação.</li>
+      </ul>
+
+      <div class="callout-warn">
+        <strong>Cuidado ao rodar <code>EXPLAIN ANALYZE</code> em comandos DML!</strong> Como o <code>EXPLAIN ANALYZE</code> <strong>executa de verdade</strong> a instrução para medir o tempo real, se você rodá-lo sobre um <code>DELETE</code> ou <code>UPDATE</code>, os dados serão alterados! Para testar DML com segurança, envolva o comando em uma transação e desfaça ao final: <code>BEGIN; EXPLAIN ANALYZE UPDATE ...; ROLLBACK;</code>.
+      </div>
+    </section>
+
+    <!-- Seção 4: Exercícios de Fixação -->
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <p>Avalie seus conhecimentos sobre diagnóstico e monitoramento de performance em SGBDs:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Qual a principal diferença entre executar <code>EXPLAIN SELECT ...</code> e <code>EXPLAIN ANALYZE SELECT ...</code>?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            O <code>EXPLAIN</code> apenas exibe o plano <strong>estimado</strong> pelo otimizador sem rodar a consulta. Já o <code>EXPLAIN ANALYZE</code> <strong>executa a consulta de fato</strong> e mostra o tempo real gasto e o número exato de linhas processadas em cada nó do plano, permitindo comparar estimativa versus realidade.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Ao analisar o plano de uma consulta em uma tabela com 10 milhões de registros que busca apenas 1 cliente pelo CPF (<code>WHERE cpf = '12345678900'</code>), o SGBD exibiu <strong><code>Seq Scan</code> (Full Table Scan)</strong> levando 4 segundos. Qual é a causa mais provável?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            A ausência de um <strong>índice</strong> na coluna <code>cpf</code> (ou a aplicação de uma função sobre a coluna indexada, como <code>WHERE REPLACE(cpf, '.', '') = ...</code>, que impede o uso do índice — consulta não <em>SARGable</em>), obrigando o SGBD a ler todos os 10 milhões de registros sequencialmente.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Por que o comando <code>ANALYZE</code> (ou <code>UPDATE STATISTICS</code>) é fundamental após uma importação em lote de milhões de registros?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Porque ele atualiza os histogramas e estatísticas de cardinalidade no catálogo do SGBD. Sem estatísticas atualizadas, o otimizador de consultas pode acreditar que a tabela ainda está vazia ou tem poucos registros, escolhendo planos de execução ineficientes.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-77.html">← Anterior: Aula 77 — Backup e Recuperação de Dados</a>
+      <a href="aula-79.html">Próxima: Aula 79 — Segurança em Bancos Relacionais →</a>
+    </div>
+  </main>
+
+</body>
+</html>

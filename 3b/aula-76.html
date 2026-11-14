@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 76: Transações com DML | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html" class="active">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 19 • Aula 76</div>
+      <h1>Aula 76: Transações com DML</h1>
+      <p>Aprenda a agrupar múltiplas instruções DML (INSERT, UPDATE, DELETE) em unidades atômicas de trabalho usando BEGIN/START TRANSACTION, COMMIT, ROLLBACK, SAVEPOINT e bloqueios pessimistas (SELECT ... FOR UPDATE).</p>
+    </header>
+
+    <!-- Seção 1: Por que agrupar comandos DML em Transações? -->
+    <section class="card">
+      <h2>1. Operações DML Compostas e Controle TCL</h2>
+      <p>Por padrão, a maioria dos SGBDs opera em modo <strong><code>AUTOCOMMIT = ON</code></strong>, em que cada comando <code>INSERT</code>, <code>UPDATE</code> ou <code>DELETE</code> individual é confirmado imediatamente após sua execução. Porém, regras de negócio reais exigem que <strong>vários comandos DML</strong> sejam executados como um bloco indivisível ("tudo ou nada"):</p>
+      <ul>
+        <li><strong><code>BEGIN</code> / <code>START TRANSACTION</code>:</strong> Desativa temporariamente o <em>autocommit</em> e inicia uma unidade lógica de trabalho.</li>
+        <li><strong><code>COMMIT</code>:</strong> Torna permanentes e visíveis para outras conexões todas as alterações DML realizadas desde o início da transação.</li>
+        <li><strong><code>ROLLBACK</code>:</strong> Desfaz integralmente todas as alterações DML pendentes desde o início da transação, restaurando o estado anterior do banco.</li>
+        <li><strong><code>SAVEPOINT nome</code> e <code>ROLLBACK TO SAVEPOINT nome</code>:</strong> Cria pontos de salvamento intermediários dentro de uma mesma transação, permitindo desfazer apenas uma etapa específica sem cancelar o trabalho já validado anteriormente.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Exemplo Clássico de Negócio:</strong> Ao finalizar uma compra em um e-commerce, precisamos (1) inserir o cabeçalho em <code>pedidos</code>, (2) inserir cada produto em <code>itens_pedido</code> e (3) debitar a quantidade em <code>produtos.estoque</code>. Se o passo 3 falhar por falta de saldo no estoque, o <code>ROLLBACK</code> desfaz automaticamente os passos 1 e 2.
+      </div>
+    </section>
+
+    <!-- Seção 2: Exemplo Prático com SAVEPOINT e Bloqueio Concorrente -->
+    <section class="card">
+      <h2>2. Exemplo Prático: SAVEPOINT e SELECT ... FOR UPDATE</h2>
+      <p>Quando dois usuários tentam atualizar ou comprar o mesmo item simultaneamente, o uso de <strong><code>SELECT ... FOR UPDATE</code></strong> dentro de uma transação aplica um bloqueio exclusivo nas linhas lidas até o <code>COMMIT</code> ou <code>ROLLBACK</code>, evitando condições de corrida (<em>race conditions</em>):</p>
+
+      <pre><span class="sql-cmt">-- Fluxo completo de fechamento de pedido com bloqueio de linha e SAVEPOINT</span>
+<span class="sql-kw">BEGIN</span>;
+
+<span class="sql-cmt">-- 1. Bloqueia a linha do produto para evitar venda simultânea do último item</span>
+<span class="sql-kw">SELECT</span> estoque, preco
+<span class="sql-kw">FROM</span> produtos
+<span class="sql-kw">WHERE</span> id_produto = <span class="sql-num">105</span>
+<span class="sql-kw">FOR UPDATE</span>;
+
+<span class="sql-cmt">-- 2. Registra o pedido e dá baixa no estoque</span>
+<span class="sql-kw">INSERT INTO</span> pedidos (id_pedido, id_cliente, status, valor_total)
+<span class="sql-kw">VALUES</span> (<span class="sql-num">9001</span>, <span class="sql-num">42</span>, <span class="sql-str">'PROCESSANDO'</span>, <span class="sql-num">250.00</span>);
+
+<span class="sql-kw">UPDATE</span> produtos
+<span class="sql-kw">SET</span> estoque = estoque - <span class="sql-num">1</span>
+<span class="sql-kw">WHERE</span> id_produto = <span class="sql-num">105</span>;
+
+<span class="sql-cmt">-- 3. Cria um ponto de salvamento antes de tentar aplicar cupom promocional</span>
+<span class="sql-kw">SAVEPOINT</span> antes_do_cupom;
+
+<span class="sql-kw">UPDATE</span> pedidos
+<span class="sql-kw">SET</span> valor_total = valor_total - <span class="sql-num">50.00</span>
+<span class="sql-kw">WHERE</span> id_pedido = <span class="sql-num">9001</span>;
+
+<span class="sql-cmt">-- Suponha que a aplicação validou que o cupom estava expirado:</span>
+<span class="sql-cmt">-- Desfaz APENAS o desconto, mantendo o pedido e a baixa de estoque!</span>
+<span class="sql-kw">ROLLBACK TO SAVEPOINT</span> antes_do_cupom;
+
+<span class="sql-cmt">-- 4. Confirma o pedido sem o desconto e libera os bloqueios</span>
+<span class="sql-kw">UPDATE</span> pedidos <span class="sql-kw">SET</span> status = <span class="sql-str">'CONFIRMADO'</span> <span class="sql-kw">WHERE</span> id_pedido = <span class="sql-num">9001</span>;
+<span class="sql-kw">COMMIT</span>;</pre>
+    </section>
+
+    <!-- Seção 3: Boas Práticas e Prevenção de Deadlocks -->
+    <section class="card">
+      <h2>3. Boas Práticas de Transações DML e Prevenção de Deadlocks</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Boas Práticas</th>
+              <th>Por que é Essencial?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mantenha transações curtas</strong></td>
+              <td>Nunca espere interação humana (ex.: usuário digitando na tela) entre o <code>BEGIN</code> e o <code>COMMIT</code>. Bloqueios longos paralisam outras sessões e degradam todo o sistema.</td>
+            </tr>
+            <tr>
+              <td><strong>Ordem consistente de acesso (Anti-Deadlock)</strong></td>
+              <td>Se a Transação A bloqueia a tabela <code>contas</code> e depois <code>pedidos</code>, e a Transação B faz na ordem inversa (<code>pedidos</code> depois <code>contas</code>), ocorre um <strong>Deadlock</strong> (impasse mútuo). Sempre atualize tabelas e IDs na mesma ordem crescente.</td>
+            </tr>
+            <tr>
+              <td><strong>Tratamento de erro na aplicação (Try / Catch)</strong></td>
+              <td>Qualquer exceção de constraint ou falha de rede no bloco <code>TRY</code> deve acionar imediatamente um <code>ROLLBACK</code> no bloco <code>CATCH</code> antes de devolver a conexão ao pool.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout-warn">
+        <strong>Cuidado com Connection Pools:</strong> Em aplicações web modernas (Java, Node.js, Python, C#), as conexões são reutilizadas em um <em>pool</em>. Se um código abrir uma transação, sofrer um erro e devolver a conexão ao pool sem executar <code>ROLLBACK</code>, o próximo usuário que pegar aquela conexão herdará uma transação aberta ou terá seus dados comprometidos por acidente!
+      </div>
+    </section>
+
+    <!-- Seção 4: Exercícios de Fixação -->
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <p>Verifique seus conhecimentos sobre controle transacional aplicado a comandos DML:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Dentro de uma transação, executamos: <code>INSERT A; SAVEPOINT sp1; UPDATE B; SAVEPOINT sp2; DELETE C; ROLLBACK TO SAVEPOINT sp1; COMMIT;</code>. Quais operações DML foram efetivamente gravadas no banco?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Apenas o <strong><code>INSERT A</code></strong>! Ao executar <code>ROLLBACK TO SAVEPOINT sp1</code>, tanto o <code>DELETE C</code> quanto o <code>UPDATE B</code> (e o próprio <code>sp2</code>) foram desfeitos. Em seguida, o <code>COMMIT</code> consolidou tudo o que havia sido feito antes do <code>sp1</code>.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Qual a função da cláusula <code>FOR UPDATE</code> ao final de um comando <code>SELECT</code> dentro de uma transação?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Ela adquire um <strong>bloqueio exclusivo (row-level lock)</strong> sobre as linhas retornadas pelo <code>SELECT</code>, impedindo que outras transações simultâneas alterem ou bloqueiem aquelas mesmas linhas até que a transação atual execute <code>COMMIT</code> ou <code>ROLLBACK</code>.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. O que é um <em>Deadlock</em> em operações DML concorrentes e qual é a principal medida preventiva na escrita do SQL?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Um <em>Deadlock</em> ocorre quando duas transações bloqueiam recursos distintos e cada uma fica aguardando a liberação do recurso bloqueado pela outra, gerando um impasse infinito (até o SGBD abortar uma delas). A principal prevenção é <strong>acessar e atualizar tabelas e registros sempre na mesma ordem determinística</strong> (ex.: ordenar os IDs antes de atualizar em lote).
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-75.html">← Anterior: Aula 75 — Comandos DML Complementares</a>
+      <a href="aula-77.html">Próxima: Aula 77 — Backup e Recuperação de Dados →</a>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 72: SELECT com CASE | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html" class="active">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 18 • Aula 72</div>
+      <h1>Aula 72: SELECT com CASE</h1>
+      <p>Aprenda a aplicar lógica condicional (estruturas IF / THEN / ELSE) diretamente em consultas SQL utilizando CASE Simples e CASE Pesquisado para classificar dados, criar agregações condicionais (pivotamento) e definir ordenações customizadas.</p>
+    </header>
+
+    <!-- Seção 1: Sintaxe do CASE (Simples vs. Pesquisado) -->
+    <section class="card">
+      <h2>1. Lógica Condicional no SQL: Expressão CASE</h2>
+      <p>A expressão <strong><code>CASE ... WHEN ... THEN ... ELSE ... END</code></strong> traz a estrutura condicional <em>if / else if / else</em> das linguagens de programação para dentro da consulta SQL. Ela é avaliada de cima para baixo e retorna o valor correspondente à <strong>primeira condição verdadeira</strong> encontrada.</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Formato</th>
+              <th>Estrutura Sintática</th>
+              <th>Quando Utilizar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CASE Simples</strong></td>
+              <td><code>CASE coluna<br>&nbsp;&nbsp;WHEN 'A' THEN 'Ativo'<br>&nbsp;&nbsp;WHEN 'I' THEN 'Inativo'<br>&nbsp;&nbsp;ELSE 'Desconhecido'<br>END</code></td>
+              <td>Quando você compara uma única coluna ou expressão por igualdade exata contra valores fixos.</td>
+            </tr>
+            <tr>
+              <td><strong>CASE Pesquisado (Searched)</strong></td>
+              <td><code>CASE<br>&nbsp;&nbsp;WHEN nota &gt;= 7 THEN 'Aprovado'<br>&nbsp;&nbsp;WHEN nota &gt;= 5 THEN 'Recuperação'<br>&nbsp;&nbsp;ELSE 'Reprovado'<br>END</code></td>
+              <td>Quando precisa testar faixas de valores (<code>&gt;</code>, <code>&lt;</code>, <code>BETWEEN</code>), valores nulos (<code>IS NULL</code>) ou múltiplas colunas combinadas com <code>AND</code>/<code>OR</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>O que acontece se omitir o <code>ELSE</code>?</strong> Se nenhuma condição <code>WHEN</code> for satisfeita e não houver cláusula <code>ELSE</code>, a expressão <code>CASE</code> retornará <strong><code>NULL</code></strong> por padrão.
+      </div>
+    </section>
+
+    <!-- Seção 2: Exemplos Práticos (Classificação, Agregação Condicional e ORDER BY) -->
+    <section class="card">
+      <h2>2. Aplicações Práticas: Classificação, Pivotamento e Ordenação</h2>
+      <p>Por ser uma expressão escalar válida em quase qualquer parte da consulta, o <code>CASE</code> pode ser usado no <code>SELECT</code>, dentro de funções de agregação (<code>SUM</code>/<code>COUNT</code>), no <code>GROUP BY</code> e até no <code>ORDER BY</code>:</p>
+
+      <pre><span class="sql-cmt">-- 1. Classificação de faixa de preço no SELECT (CASE Pesquisado)</span>
+<span class="sql-kw">SELECT</span> 
+    nome,
+    preco,
+    <span class="sql-kw">CASE</span>
+        <span class="sql-kw">WHEN</span> preco &lt; <span class="sql-num">50.00</span> <span class="sql-kw">THEN</span> <span class="sql-str">'Econômico'</span>
+        <span class="sql-kw">WHEN</span> preco <span class="sql-kw">BETWEEN</span> <span class="sql-num">50.00</span> <span class="sql-kw">AND</span> <span class="sql-num">200.00</span> <span class="sql-kw">THEN</span> <span class="sql-str">'Intermediário'</span>
+        <span class="sql-kw">ELSE</span> <span class="sql-str">'Premium'</span>
+    <span class="sql-kw">END AS</span> faixa_preco
+<span class="sql-kw">FROM</span> produtos;
+
+<span class="sql-cmt">-- 2. Agregação Condicional (Pivotamento): contar pedidos por status em uma única linha</span>
+<span class="sql-kw">SELECT</span> 
+    <span class="sql-kw">COUNT</span>(*) <span class="sql-kw">AS</span> total_pedidos,
+    <span class="sql-kw">SUM</span>(<span class="sql-kw">CASE WHEN</span> status = <span class="sql-str">'PAGO'</span> <span class="sql-kw">THEN</span> <span class="sql-num">1</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) <span class="sql-kw">AS</span> qtd_pagos,
+    <span class="sql-kw">SUM</span>(<span class="sql-kw">CASE WHEN</span> status = <span class="sql-str">'PENDENTE'</span> <span class="sql-kw">THEN</span> <span class="sql-num">1</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) <span class="sql-kw">AS</span> qtd_pendentes,
+    <span class="sql-kw">SUM</span>(<span class="sql-kw">CASE WHEN</span> status = <span class="sql-str">'CANCELADO'</span> <span class="sql-kw">THEN</span> valor_total <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) <span class="sql-kw">AS</span> valor_cancelado
+<span class="sql-kw">FROM</span> pedidos;
+
+<span class="sql-cmt">-- 3. Ordenação Customizada (não alfabética) no ORDER BY</span>
+<span class="sql-kw">SELECT</span> id_chamado, titulo, prioridade
+<span class="sql-kw">FROM</span> chamados_suporte
+<span class="sql-kw">ORDER BY</span> 
+    <span class="sql-kw">CASE</span> prioridade
+        <span class="sql-kw">WHEN</span> <span class="sql-str">'CRITICA'</span> <span class="sql-kw">THEN</span> <span class="sql-num">1</span>
+        <span class="sql-kw">WHEN</span> <span class="sql-str">'ALTA'</span>    <span class="sql-kw">THEN</span> <span class="sql-num">2</span>
+        <span class="sql-kw">WHEN</span> <span class="sql-str">'MEDIA'</span>   <span class="sql-kw">THEN</span> <span class="sql-num">3</span>
+        <span class="sql-kw">ELSE</span> <span class="sql-num">4</span>
+    <span class="sql-kw">END ASC</span>;</pre>
+
+      <div class="callout-warn">
+        <strong>Armadilha com NULL no CASE Simples:</strong> Nunca escreva <code>CASE coluna WHEN NULL THEN ...</code>! Como no SQL <code>NULL = NULL</code> resulta em <em>UNKNOWN</em>, essa comparação nunca será verdadeira. Para testar valores nulos, utilize sempre o <strong>CASE Pesquisado</strong>: <code>CASE WHEN coluna IS NULL THEN ... END</code>.
+      </div>
+    </section>
+
+    <!-- Seção 3: Funções Auxiliares Relacionadas (COALESCE e NULLIF) -->
+    <section class="card">
+      <h2>3. Atalhos Condicionais no Padrão SQL: COALESCE e NULLIF</h2>
+      <p>Para casos condicionais muito frequentes envolvendo valores nulos, o SQL padrão oferece duas funções enxutas que funcionam como atalhos internos para expressões <code>CASE</code>:</p>
+      <ul>
+        <li><strong><code>COALESCE(val1, val2, ..., valN)</code>:</strong> Retorna o <strong>primeiro valor não nulo</strong> da lista. Equivalente a <code>CASE WHEN val1 IS NOT NULL THEN val1 ELSE val2 END</code>. Muito usado para substituir <code>NULL</code> por zero ou texto padrão (ex.: <code>COALESCE(telefone, 'Não informado')</code>).</li>
+        <li><strong><code>NULLIF(val1, val2)</code>:</strong> Retorna <code>NULL</code> se <code>val1 = val2</code>; caso contrário, retorna <code>val1</code>. Essencial para evitar <strong>divisão por zero</strong>: <code>receita / NULLIF(qtd_vendas, 0)</code>.</li>
+      </ul>
+    </section>
+
+    <!-- Seção 4: Exercícios de Fixação -->
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <p>Avalie seu raciocínio com expressões condicionais em SQL:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Analise o trecho: <code>CASE WHEN nota &gt;= 5 THEN 'Recuperação' WHEN nota &gt;= 7 THEN 'Aprovado' ELSE 'Reprovado' END</code>. Se um aluno tirou nota <strong>9.0</strong>, qual texto será retornado e por quê?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Será retornado <strong><code>'Recuperação'</code></strong>! Como a expressão <code>CASE</code> avalia as condições de cima para baixo e para na primeira verdadeira, <code>9.0 &gt;= 5</code> é verdadeiro logo na primeira linha. Para corrigir, deve-se testar sempre do critério mais restritivo para o mais amplo (<code>nota &gt;= 7</code> primeiro).
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Por que a expressão <code>CASE data_entrega WHEN NULL THEN 'Em trânsito' ELSE 'Entregue' END</code> sempre retorna <code>'Entregue'</code> mesmo quando <code>data_entrega</code> está vazia?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Porque o <strong>CASE Simples</strong> realiza testes de igualdade (<code>data_entrega = NULL</code>), e em SQL qualquer comparação com <code>= NULL</code> retorna <em>UNKNOWN</em> (falso). A forma correta usa o CASE Pesquisado: <code>CASE WHEN data_entrega IS NULL THEN 'Em trânsito' ELSE 'Entregue' END</code>.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Como evitar um erro de divisão por zero ao calcular <code>valor_total / quantidade_itens</code> caso algum registro possua <code>quantidade_itens = 0</code>?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Utilizando <code>valor_total / NULLIF(quantidade_itens, 0)</code> (ou um <code>CASE WHEN quantidade_itens = 0 THEN NULL ELSE valor_total / quantidade_itens END</code>). Quando <code>quantidade_itens</code> for 0, <code>NULLIF</code> transforma o divisor em <code>NULL</code>, fazendo o resultado da divisão ser <code>NULL</code> em vez de travar a consulta com erro.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-71.html">← Anterior: Aula 71 — SELECT com UNION e UNION ALL</a>
+      <a href="aula-73.html">Próxima: Aula 73 — Diferenças entre DDL e DML →</a>
+    </div>
+  </main>
+
+</body>
+</html>

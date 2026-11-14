@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 81: Migração de Dados | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html" class="active">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 21 • Aula 81</div>
+      <h1>Aula 81: Migração de Dados</h1>
+      <p>Aprenda as etapas metodológicas para migração de bases de dados relacionais: planejamento, estratégia ETL (Extract, Transform, Load), garantia de integridade referencial, mapeamento de tipos de dados e testes de homologação.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. O Processo de Migração e Ciclo ETL</h2>
+      <p>A migração de bancos de dados ocorre quando precisamos mover estruturas e dados de um SGBD para outro (ex.: de Oracle para PostgreSQL, on-premise para nuvem, ou reestruturação de schema). O processo segue a metodologia padrão <strong>ETL</strong>:</p>
+      <ul>
+        <li><strong>Extração (Extract):</strong> Coleta de dados e metadados da fonte de origem (dumps, consultas em lote ou leituras de streams de log).</li>
+        <li><strong>Transformação (Transform):</strong> Limpeza, conversão de tipos de dados incompatíveis (ex.: <code>VARCHAR2</code> para <code>VARCHAR</code>, <code>DATETIME</code> para <code>TIMESTAMP WITH TIME ZONE</code>) e ajuste de regras de negócio.</li>
+        <li><strong>Carga (Load):</strong> Inserção dos dados processados no SGBD de destino, respeitando a ordem de dependência das chaves estrangeiras.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Estratégia de Janela de Manutenção:</strong> Em sistemas críticos, adota-se migração híbrida com captura de alterações em tempo real (CDC — <em>Change Data Capture</em>) para minimizar o tempo de indisponibilidade (downtime).
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Mapeamento de Tipos e Cuidados com Integridade</h2>
+      <p>Diferentes SGBDs implementam dialetos SQL e tipos de dados próprios. Um erro comum na migração é a perda de precisão numérica ou corrupção de caracteres especiais (problemas de <em>Collation</em> e codificação UTF-8).</p>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Desafio de Migração</th>
+              <th>Causa Comum</th>
+              <th>Solução Recomendada</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Incompatibilidade de Tipos</strong></td>
+              <td>Diferenças na representação de booleanos, datas ou números de precisão arbitrária.</td>
+              <td>Criar script de mapeamento prévio de tipos de dados no DDL de destino.</td>
+            </tr>
+            <tr>
+              <td><strong>Violação de Chave Estrangeira</strong></td>
+              <td>Inserção de registros filhos antes dos registros pais correspondentes.</td>
+              <td>Desativar temporariamente as constraints durante a carga em lote (<code>SET session_replication_role = 'replica';</code>) ou ordenar o ETL adequadamente.</td>
+            </tr>
+            <tr>
+              <td><strong>Divergência de Codificação</strong></td>
+              <td>Origem em Latin1/ISO-8859-1 e destino em UTF-8.</td>
+              <td>Converter a codificação durante a fase de Transformação do ETL.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Validação e Homologação Pós-Migração</h2>
+      <p>Após a execução do processo ETL, a equipe de engenharia de dados realiza auditorias rigorosas antes de liberar o sistema para produção:</p>
+      <ul>
+        <li><strong>Contagem de Linhas (Row Count Validation):</strong> Comparar o número exato de registros por tabela entre origem e destino.</li>
+        <li><strong>Testes de Hash / Checksum:</strong> Validar somatórias de colunas críticas (ex.: <code>SUM(valor_total)</code> em pedidos) para garantir que nenhum dado foi truncado ou corrompido.</li>
+        <li><strong>Validação de Aplicação:</strong> Executar baterias de testes automatizados de regressão na nova base de dados.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <div class="quiz-item">
+        <p class="pergunta">1. O que significam as siglas da metodologia ETL aplicada à migração de dados?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Significa <strong>Extraction (Extração)</strong>, <strong>Transformation (Transformação)</strong> e <strong>Load (Carga)</strong>.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Por que a ordem das tabelas importadas é crítica ao carregar dados em um banco relacional com chaves estrangeiras ativas?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Porque se você tentar inserir dados em uma tabela filha antes de inserir os registros pais correspondentes na tabela referenciada, o SGBD rejeitará a operação por violação de integridade referencial.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <div class="lesson-nav">
+      <a href="aula-80.html">← Anterior: Aula 80 — Alta Disponibilidade</a>
+      <a href="aula-82.html">Próxima: Aula 82 — Indexação Avançada →</a>
+    </div>
+  </main>
+</body>
+</html>

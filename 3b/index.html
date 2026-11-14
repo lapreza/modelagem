@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3º Bimestre — SGBD Relacional, Administração e Otimização | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 2px 0;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cards de Navegação por Bimestres na Home */
+    .bimestres-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .card-bimestre {
+      background: #ffffff;
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-decoration: none;
+      color: #1e293b;
+      border-top: 4px solid #cbd5e1;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-bimestre:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.12);
+    }
+    .card-bimestre.active {
+      border-top-color: #0284c7;
+      background: #f0f9ff;
+    }
+    .card-bimestre h3 {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+    .card-bimestre p {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+
+    /* Seções das Semanas */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.3rem;
+      color: #1e293b;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    section.card p.semana-desc {
+      line-height: 1.6;
+      margin-bottom: 20px;
+      color: #475569;
+    }
+    .grid-aulas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 15px;
+    }
+    .card-aula {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0284c7;
+      padding: 15px;
+      border-radius: 0 6px 6px 0;
+      text-decoration: none;
+      color: #1e293b;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .card-aula:hover {
+      background: #f1f5f9;
+      border-left-color: #0369a1;
+    }
+    .card-aula span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #0284c7;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .card-aula h4 {
+      font-size: 0.95rem;
+      color: #0f172a;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">Modelagem e Desenvolvimento de Banco de Dados</div>
+      <h1>3º Bimestre — SGBD Relacional, Administração e Otimização</h1>
+      <p>Aprofundamento em Sistemas Gerenciadores de Banco de Dados (SGBDs) relacionais, abrangendo chaves, índices, views, consultas analíticas avançadas (Window Functions e CTEs), segurança, backup, performance, alta disponibilidade e armazenamento em nuvem.</p>
+    </header>
+
+    <!-- Troca Rápida de Bimestres em Cards -->
+    <div class="bimestres-grid">
+      <a href="../index.html" class="card-bimestre">
+        <h3>1º Bimestre</h3>
+        <p>Modelagem Conceitual & Lógica</p>
+      </a>
+      <a href="../2b/index.html" class="card-bimestre">
+        <h3>2º Bimestre</h3>
+        <p>Linguagem SQL & DML/DDL</p>
+      </a>
+      <a href="./index.html" class="card-bimestre active">
+        <h3>3º Bimestre</h3>
+        <p>Administração & Otimização</p>
+      </a>
+      <a href="../4b/index.html" class="card-bimestre">
+        <h3>4º Bimestre</h3>
+        <p>Bancos NoSQL</p>
+      </a>
+    </div>
+
+    <!-- Semana 15 -->
+    <section class="card">
+      <h2>Semana 15 (S15) – SGBD Relacional</h2>
+      <p class="semana-desc">Exploração dos SGBDs relacionais e da modelagem de dados para aplicar técnicas de normalização e utilizar comandos SQL básicos na manipulação de informações.</p>
+      <div class="grid-aulas">
+        <a href="aula-57.html" class="card-aula">
+          <span>Aula 57</span>
+          <h4>Introdução aos SGBDs relacionais</h4>
+        </a>
+        <a href="aula-58.html" class="card-aula">
+          <span>Aula 58</span>
+          <h4>Modelagem de dados relacional</h4>
+        </a>
+        <a href="aula-59.html" class="card-aula">
+          <span>Aula 59</span>
+          <h4>Normalização de banco de dados</h4>
+        </a>
+        <a href="aula-60.html" class="card-aula">
+          <span>Aula 60</span>
+          <h4>SQL básico para SGBD relacional</h4>
+        </a>
+      </div>
+    </section>
+
+    <!-- Semana 16 -->
+    <section class="card">
+      <h2>Semana 16 (S16) – SGBD Relacional: Chaves, Índices e Vistas</h2>
+      <p class="semana-desc">Definição de chaves primárias e estrangeiras para criar índices, gerenciar transações e utilizar vistas (views), simplificando consultas complexas e otimizando o banco.</p>
+      <div class="grid-aulas">
+        <a href="aula-61.html" class="card-aula">
+          <span>Aula 61</span>
+          <h4>Chaves primárias e estrangeiras</h4>
+        </a>
+        <a href="aula-62.html" class="card-aula">
+          <span>Aula 62</span>
+          <h4>Índices em bancos de dados relacionais</h4>
+        </a>
+        <a href="aula-63.html" class="card-aula">
+          <span>Aula 63</span>
+          <h4>Transações em bancos de dados relacionais</h4>
+        </a>
+        <a href="aula-64.html" class="card-aula">
+          <span>Aula 64</span>
+          <h4>Vistas em bancos de dados relacionais</h4>
+        </a>
+      </div>
+    </section>
+
+    <!-- Semana 17 -->
+    <section class="card">
+      <h2>Semana 17 (S17) – Cláusulas Select</h2>
+      <p class="semana-desc">Domínio da cláusula SELECT para realizar consultas simples e complexas, utilizando funções de agregação, junções e subconsultas para extrair insights dos dados.</p>
+      <div class="grid-aulas">
+        <a href="aula-65.html" class="card-aula">
+          <span>Aula 65</span>
+          <h4>Cláusula Select básica</h4>
+        </a>
+        <a href="aula-66.html" class="card-aula">
+          <span>Aula 66</span>
+          <h4>Cláusula Select com funções de agregação</h4>
+        </a>
+        <a href="aula-67.html" class="card-aula">
+          <span>Aula 67</span>
+          <h4>Cláusula Select com junções</h4>
+        </a>
+        <a href="aula-68.html" class="card-aula">
+          <span>Aula 68</span>
+          <h4>Subconsultas e consultas aninhadas</h4>
+        </a>
+      </div>
+    </section>
+
+    <!-- Semana 18 -->
+    <section class="card">
+      <h2>Semana 18 (S18) – Cláusulas Select Avançadas</h2>
+      <p class="semana-desc">Uso de funções de janela (Window Functions) e Common Table Expressions (CTE) para criar consultas avançadas, combinando resultados com UNION e condicionando saídas com CASE.</p>
+      <div class="grid-aulas">
+        <a href="aula-69.html" class="card-aula">
+          <span>Aula 69</span>
+          <h4>Cláusula Select com funções de janela</h4>
+        </a>
+        <a href="aula-70.html" class="card-aula">
+          <span>Aula 70</span>
+          <h4>Cláusula Select com Common Table Expressions (CTE)</h4>
+        </a>
+        <a href="aula-71.html" class="card-aula">
+          <span>Aula 71</span>
+          <h4>Cláusula Select com UNION e UNION ALL</h4>
+        </a>
+        <a href="aula-72.html" class="card-aula">
+          <span>Aula 72</span>
+          <h4>Cláusula Select com CASE</h4>
+        </a>
+      </div>
+    </section>
+
+    <!-- Semana 19 -->
+    <section class="card">
+      <h2>Semana 19 (S19) – DDL x DML</h2>
+      <p class="semana-desc">Domínio da diferença entre DML e DDL para definir a estrutura do banco com comandos DDL e manipular os dados com comandos DML, incluindo o uso de transações.</p>
+      <div class="grid-aulas">
+        <a href="aula-73.html" class="card-aula">
+          <span>Aula 73</span>
+          <h4>Diferenças entre DDL e DML – Aula complementar</h4>
+        </a>
+        <a href="aula-74.html" class="card-aula">
+          <span>Aula 74</span>
+          <h4>Comandos DDL – Aula complementar</h4>
+        </a>
+        <a href="aula-75.html" class="card-aula">
+          <span>Aula 75</span>
+          <h4>Comandos DML – Aula complementar</h4>
+        </a>
+        <a href="aula-76.html" class="card-aula">
+          <span>Aula 76</span>
+          <h4>Transações com DML – Aula complementar</h4>
+        </a>
+      </div>
+    </section>
+
+    <!-- Semana 20 -->
+    <section class="card">
+      <h2>Semana 20 (S20) – SGBD Relacional: Backup, Segurança e Performance</h2>
+      <p class="semana-desc">Implementação de estratégias de backup e recuperação de dados para monitorar a performance, configurar alta disponibilidade e garantir a segurança do banco relacional.</p>
+      <div class="grid-aulas">
+        <a href="aula-77.html" class="card-aula">
+          <span>Aula 77</span>
+          <h4>Backup e recuperação de dados</h4>
+        </a>
+        <a href="aula-78.html" class="card-aula">
+          <span>Aula 78</span>
+          <h4>Monitoramento de performance</h4>
+        </a>
+        <a href="aula-79.html" class="card-aula">
+          <span>Aula 79</span>
+          <h4>Segurança em bancos de dados relacionais</h4>
+        </a>
+        <a href="aula-80.html" class="card-aula">
+          <span>Aula 80</span>
+          <h4>Configuração de alta disponibilidade</h4>
+        </a>
+      </div>
+    </section>
+
+    <!-- Semana 21 -->
+    <section class="card">
+      <h2>Semana 21 (S21) – SGBD Relacional: Migração, Indexação e Nuvem</h2>
+      <p class="semana-desc">Planejamento e execução da migração de dados entre diferentes sistemas para explorar técnicas avançadas de indexação e armazenamento de dados em nuvem.</p>
+      <div class="grid-aulas">
+        <a href="aula-81.html" class="card-aula">
+          <span>Aula 81</span>
+          <h4>Migração de dados</h4>
+        </a>
+        <a href="aula-82.html" class="card-aula">
+          <span>Aula 82</span>
+          <h4>Indexação avançada</h4>
+        </a>
+        <a href="aula-83.html" class="card-aula">
+          <span>Aula 83</span>
+          <h4>Armazenamento de dados em nuvem</h4>
+        </a>
+        <a href="aula-84.html" class="card-aula">
+          <span>Aula 84</span>
+          <h4>Tópicos avançados em SGBDs relacionais</h4>
+        </a>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

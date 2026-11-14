@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 57: Introdução aos SGBDs Relacionais | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 12px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html" class="active">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 15 • Aula 57</div>
+      <h1>Aula 57: Introdução aos SGBDs Relacionais</h1>
+      <p>Compreenda a arquitetura, o funcionamento e o papel essencial dos Sistemas Gerenciadores de Banco de Dados (SGBDs) relacionais no armazenamento estruturado, seguro e íntegro das informações.</p>
+    </header>
+
+    <!-- Seção 1: O que é um SGBD Relacional -->
+    <section class="card">
+      <h2>1. O que é um SGBD Relacional?</h2>
+      <p>Um <strong>Sistema Gerenciador de Banco de Dados (SGBD)</strong> é o software responsável por criar, organizar, armazenar, proteger e permitir o acesso aos dados de forma estruturada. Ele atua como uma camada intermediária entre as aplicações (sites, sistemas empresariais, aplicativos mobile) e os arquivos físicos gravados no disco.</p>
+      <p>Quando falamos de um <strong>SGBD Relacional (SGBDR)</strong> — baseado no modelo proposto por Edgar F. Codd em 1970 —, os dados são organizados em <strong>tabelas (relações)</strong> compostas por linhas e colunas, conectadas entre si por meio de chaves.</p>
+
+      <div class="callout">
+        <strong>Conceito-Chave:</strong> O Banco de Dados é o conjunto organizado de informações armazenadas; o <strong>SGBD</strong> é o motor de software que gerencia esse acervo (como MySQL, PostgreSQL, Oracle, SQL Server e SQLite).
+      </div>
+    </section>
+
+    <!-- Seção 2: Estrutura Fundamental -->
+    <section class="card">
+      <h2>2. Estrutura Básica do Modelo Relacional</h2>
+      <p>Para entender como um SGBDR opera internamente, é fundamental dominar a terminologia técnica que conecta a teoria matemática à prática do desenvolvimento:</p>
+      <ul>
+        <li><strong>Tabela (Relação):</strong> Representa uma entidade do mundo real (ex.: <code>alunos</code>, <code>cursos</code>, <code>matriculas</code>).</li>
+        <li><strong>Coluna (Atributo):</strong> Define uma característica específica e o tipo de dado aceito (ex.: <code>nome VARCHAR(100)</code>, <code>data_nascimento DATE</code>).</li>
+        <li><strong>Linha (Tupla ou Registro):</strong> Representa uma ocorrência individual dentro da tabela (ex.: os dados completos de um único aluno).</li>
+        <li><strong>Domínio:</strong> Conjunto de valores válidos permitidos para uma determinada coluna (ex.: notas entre 0.0 e 10.0).</li>
+        <li><strong>Chave Primária (PK) e Estrangeira (FK):</strong> Mecanismos que garantem a unicidade de cada registro e estabelecem os vínculos entre tabelas distintas.</li>
+      </ul>
+
+      <pre><span class="sql-cmt">-- Exemplo prático de estrutura relacional entre duas tabelas</span>
+<span class="sql-kw">CREATE TABLE</span> cursos (
+    id_curso <span class="sql-kw">INT PRIMARY KEY</span>,
+    nome_curso <span class="sql-kw">VARCHAR</span>(80) <span class="sql-kw">NOT NULL</span>
+);
+
+<span class="sql-kw">CREATE TABLE</span> alunos (
+    id_aluno <span class="sql-kw">INT PRIMARY KEY</span>,
+    nome <span class="sql-kw">VARCHAR</span>(100) <span class="sql-kw">NOT NULL</span>,
+    id_curso <span class="sql-kw">INT</span>,
+    <span class="sql-kw">FOREIGN KEY</span> (id_curso) <span class="sql-kw">REFERENCES</span> cursos(id_curso)
+);</pre>
+    </section>
+
+    <!-- Seção 3: Principais Funções de um SGBD -->
+    <section class="card">
+      <h2>3. Principais Responsabilidades de um SGBDR</h2>
+      <p>Diferente de salvar dados em planilhas ou arquivos de texto simples, um SGBD relacional oferece recursos avançados indispensáveis para sistemas profissionais:</p>
+      <ol>
+        <li><strong>Integridade dos Dados:</strong> Impede inconsistências (como cadastrar uma matrícula para um aluno inexistente) por meio de restrições (<em>constraints</em>).</li>
+        <li><strong>Controle de Concorrência:</strong> Permite que centenas ou milhares de usuários leiam e alterem dados simultaneamente sem corromper as informações.</li>
+        <li><strong>Segurança e Controle de Acesso:</strong> Gerencia usuários, senhas e permissões granulares (quem pode ler, inserir, alterar ou apagar cada tabela).</li>
+        <li><strong>Backup e Recuperação (Recovery):</strong> Mantém logs de transações que permitem restaurar o banco ao estado consistente após falhas de energia ou hardware.</li>
+        <li><strong>Independência de Dados:</strong> Permite alterar a forma como os arquivos são gravados fisicamente sem quebrar o código SQL das aplicações.</li>
+      </ol>
+    </section>
+
+    <!-- Seção 4: Principais SGBDs do Mercado -->
+    <section class="card">
+      <h2>4. Panorama dos Principais SGBDs Relacionais</h2>
+      <p>Na prática profissional, a escolha do SGBDR depende do porte do projeto, orçamento e requisitos de escalabilidade:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>SGBD</th>
+              <th>Licença</th>
+              <th>Características Principais</th>
+              <th>Cenário Comum de Uso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>MySQL / MariaDB</strong></td>
+              <td>Open Source / Comercial</td>
+              <td>Leve, rápido, amplamente suportado em hospedagens e muito popular na web.</td>
+              <td>Aplicações Web, e-commerce, sistemas PHP/Node/Python.</td>
+            </tr>
+            <tr>
+              <td><strong>PostgreSQL</strong></td>
+              <td>Open Source (PostgreSQL)</td>
+              <td>Extremamente robusto, aderente ao padrão SQL, suporta JSON e dados geoespaciais.</td>
+              <td>Sistemas corporativos complexos, análise de dados, fintechs.</td>
+            </tr>
+            <tr>
+              <td><strong>SQL Server</strong></td>
+              <td>Proprietária (Microsoft)</td>
+              <td>Forte integração com o ecossistema Windows, .NET e ferramentas de BI (Power BI).</td>
+              <td>Empresas que utilizam infraestrutura Microsoft.</td>
+            </tr>
+            <tr>
+              <td><strong>Oracle Database</strong></td>
+              <td>Proprietária (Oracle)</td>
+              <td>Altíssima performance, escalabilidade massiva e recursos avançados de alta disponibilidade.</td>
+              <td>Bancos, telecomunicações e grandes corporações.</td>
+            </tr>
+            <tr>
+              <td><strong>SQLite</strong></td>
+              <td>Domínio Público</td>
+              <td>Embarcado (sem servidor), armazenado em um único arquivo local.</td>
+              <td>Aplicativos Mobile (Android/iOS), protótipos e sistemas desktop.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Seção 5: Exercícios de Fixação -->
+    <section class="card">
+      <h2>5. Exercícios de Fixação</h2>
+      <p>Teste sua compreensão sobre os fundamentos dos SGBDs relacionais antes de avançar para a próxima aula:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Qual é a diferença fundamental entre um Banco de Dados e um SGBD?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            O <strong>Banco de Dados</strong> é o acervo organizado de dados propriamente dito (as tabelas e registros armazenados), enquanto o <strong>SGBD</strong> (como MySQL ou PostgreSQL) é o software responsável por gerenciar, proteger, consultar e manter a integridade desse acervo.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. No modelo relacional, como são chamados formalmente a tabela, a linha e a coluna?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Respectivamente: <strong>Relação</strong> (tabela), <strong>Tupla</strong> (linha/registro) e <strong>Atributo</strong> (coluna/campo).
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Por que o SQLite é amplamente utilizado em desenvolvimento Mobile em comparação ao Oracle Database?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Porque o <strong>SQLite</strong> é um SGBD embarcado que não exige um processo de servidor separado — todo o banco fica em um único arquivo leve dentro do próprio smartphone, consumindo pouquíssima memória e processamento.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="./index.html">← Voltar ao Índice do 3º Bimestre</a>
+      <a href="aula-58.html">Próxima: Aula 58 — Modelagem Relacional →</a>
+    </div>
+  </main>
+
+</body>
+</html>

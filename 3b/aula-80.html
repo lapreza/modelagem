@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 80: Configuração de Alta Disponibilidade | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL / Config */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html" class="active">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 20 • Aula 80</div>
+      <h1>Aula 80: Configuração de Alta Disponibilidade</h1>
+      <p>Conclua a Semana 20 dominando os conceitos de Alta Disponibilidade (HA) e Tolerância a Falhas: replicação síncrona vs. assíncrona, failover automático, balanceamento de carga de leitura (Read Scaling) e estratégias de recuperação de desastres (DR).</p>
+    </header>
+
+    <!-- Seção 1: Conceito de Alta Disponibilidade e SLA -->
+    <section class="card">
+      <h2>1. Conceitos de Alta Disponibilidade (HA) e SLA</h2>
+      <p>Em ambientes corporativos modernos, paradas não planejadas em bancos de dados geram prejuízos financeiros e operacionais imensos. A <strong>Alta Disponibilidade (High Availability — HA)</strong> visa garantir que o sistema opere continuamente, medido pelo número de "noves" no <strong>SLA (<em>Service Level Agreement</em>)</strong>:</p>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Disponibilidade (SLA)</th>
+              <th>Tempo Máximo de Indisponibilidade Permitido por Ano</th>
+              <th>Tempo Máximo por Mês</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>99%</strong> ("duas noves")</td>
+              <td>3 dias e 15 horas</td>
+              <td>7 horas e 18 minutos</td>
+            </tr>
+            <tr>
+              <td><strong>99.9%</strong> ("três noves")</td>
+              <td>8 horas e 45 minutos</td>
+              <td>43 minutos</td>
+            </tr>
+            <tr>
+              <td><strong>99.99%</strong> ("quatro noves")</td>
+              <td>52 minutos e 36 segundos</td>
+              <td>4 minutos e 23 segundos</td>
+            </tr>
+            <tr>
+              <td><strong>99.999%</strong> ("cinco noves")</td>
+              <td><strong>5 minutos e 15 segundos</strong></td>
+              <td>26 segundos</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Seção 2: Replicação Síncrona vs. Assíncrona e Failover -->
+    <section class="card">
+      <h2>2. Topologias de Replicação e Failover</h2>
+      <p>A espinha dorsal de qualquer arquitetura de HA em bancos relacionais é a arquitetura <strong>Master-Slave (Primário-Secundário)</strong> ou <strong>Primary-Replica</strong>:</p>
+      <ul>
+        <li><strong>Replicação Assíncrona:</strong> O nó primário confirma a gravação da transação para a aplicação cliente imediatamente, sem aguardar o secundário. É extremamente rápida, mas existe risco de perda de dados (RPO &gt; 0) caso o primário falhe antes de enviar os logs para a réplica.</li>
+        <li><strong>Replicação Síncrona:</strong> O primário só confirma o <code>COMMIT</code> para o cliente após garantir que ao menos uma réplica gravou os dados em seu disco (RPO = 0). Oferece segurança total contra perda de dados, mas adiciona latência de rede em cada escrita.</li>
+        <li><strong>Failover Automático:</strong> Mecanismo de monitoramento (como Patroni para PostgreSQL ou Orchestrator para MySQL) que detecta a queda do primário, promove automaticamente a réplica mais atualizada ao posto de novo primário e redireciona o tráfego via VIP ou DNS inteligente.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Escalonamento de Leitura (Read Scaling):</strong> Além de servir como proteção contra falhas, as réplicas de leitura podem ser acionadas por consultas pesadas de relatórios e <code>SELECTs</code> analíticos, aliviando drasticamente a carga de CPU e E/O do banco de dados primário (transacional).
+      </div>
+    </section>
+
+    <!-- Seção 3: Diferença entre HA e Disaster Recovery (DR) -->
+    <section class="card">
+      <h2>3. Alta Disponibilidade (HA) vs. Recuperação de Desastres (DR)</h2>
+      <div class="callout-warn">
+        <strong>Não confunda HA com DR!</strong>
+        <ul>
+          <li><strong>Alta Disponibilidade (HA):</strong> Focada em falhas locais (queda de disco, falha de fonte, travamento de processo). Os nós costumam ficar no mesmo data center ou região em rede de altíssima velocidade.</li>
+          <li><strong>Disaster Recovery (DR):</strong> Focada em catástrofes em nível de região geográfica (incêndio no data center, inundação, terremoto, blecaute regional). Envolve replicar dados para um segundo data center fisicamente distante (ex.: matriz em São Paulo, DR na nuvem em Virgínia/EUA ou outra região geográfica).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Seção 4: Exercícios de Fixação -->
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <p>Valide seus conhecimentos sobre arquiteturas de alta disponibilidade e replicação:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Qual é a principaltrade-off (vantagem versus desvantagem) ao escolher uma estratégia de <strong>replicação síncrona</strong> em vez de assíncrona?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            A vantagem é a <strong>consistência absoluta e RPO zero</strong> (nenhuma transação confirmada é perdida se o primário cair). A desvantagem é o <strong>aumento na latência de gravação</strong>, pois a aplicação precisa aguardar a confirmação de escrita na réplica remota antes de prosseguir.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. O que é o processo de <em>Failover Automático</em> em um cluster de banco de dados?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            É a capacidade do sistema de monitoramento de detectar uma falha catastrófica no nó primário, eleger automaticamente uma das réplicas disponíveis como o novo nó primário e reconfigurar as rotas de rede para que a aplicação continue gravando dados sem intervenção manual humana.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Qual é a diferença fundamental no escopo de proteção entre uma arquitetura de Alta Disponibilidade (HA) e um plano de Recuperação de Desastres (DR)?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            O <strong>HA</strong> protege o sistema contra falhas locais de infraestrutura dentro do mesmo ambiente (mantendo o serviço no ar sem interrupção), enquanto o <strong>DR</strong> protege a organização contra desastres geográficos em larga escala, exigindo a operação em um data center ou região de nuvem fisicamente distante.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-79.html">← Anterior: Aula 79 — Segurança em Bancos Relacionais</a>
+      <a href="../4b/index.html">Próxima: Início do 4º Bimestre →</a>
+    </div>
+  </main>
+
+</body>
+</html>

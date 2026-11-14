@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 67: SELECT com Junções (JOIN) | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html" class="active">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 17 • Aula 67</div>
+      <h1>Aula 67: SELECT com Junções (JOIN)</h1>
+      <p>Aprenda a combinar dados distribuídos em múltiplas tabelas normalizadas utilizando INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN, CROSS JOIN e SELF JOIN.</p>
+    </header>
+
+    <!-- Seção 1: Por que precisamos de JOIN? -->
+    <section class="card">
+      <h2>1. O Papel das Junções no Modelo Relacional</h2>
+      <p>Quando normalizamos um banco de dados (Aula 59), separamos os dados em tabelas distintas interligadas por <strong>Chaves Primárias (PK)</strong> e <strong>Chaves Estrangeiras (FK)</strong> para eliminar redundâncias. A cláusula <strong><code>JOIN</code></strong> permite reconstruir essas informações conectando linhas de duas ou mais tabelas com base em uma condição lógica (geralmente a igualdade <code>tabelaA.pk = tabelaB.fk</code>).</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo de JOIN</th>
+              <th>Comportamento</th>
+              <th>Uso Mais Comum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>INNER JOIN</code></td>
+              <td>Retorna <strong>apenas</strong> os registros que possuem correspondência em <strong>ambas</strong> as tabelas.</td>
+              <td>Listar pedidos junto com o nome do cliente que os realizou.</td>
+            </tr>
+            <tr>
+              <td><code>LEFT JOIN</code> (ou <code>LEFT OUTER JOIN</code>)</td>
+              <td>Retorna <strong>todos</strong> os registros da tabela à esquerda e os correspondentes da direita (ou <code>NULL</code> quando não há par).</td>
+              <td>Listar todos os clientes, inclusive aqueles que ainda não fizeram nenhum pedido.</td>
+            </tr>
+            <tr>
+              <td><code>RIGHT JOIN</code> (ou <code>RIGHT OUTER JOIN</code>)</td>
+              <td>Retorna <strong>todos</strong> os registros da tabela à direita e os correspondentes da esquerda (ou <code>NULL</code>).</td>
+              <td>Inverso do <code>LEFT JOIN</code> (na prática, costuma-se inverter a ordem das tabelas e usar <code>LEFT JOIN</code>).</td>
+            </tr>
+            <tr>
+              <td><code>FULL OUTER JOIN</code></td>
+              <td>Retorna todos os registros quando há correspondência em uma das tabelas, preenchendo com <code>NULL</code> os lados sem par.</td>
+              <td>Auditoria e conciliação entre duas bases de dados distintas.</td>
+            </tr>
+            <tr>
+              <td><code>CROSS JOIN</code></td>
+              <td>Produto cartesiano: combina cada linha da primeira tabela com todas as linhas da segunda.</td>
+              <td>Gerar grades de combinações (ex.: todos os tamanhos × todas as cores de um produto).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Seção 2: Exemplos Práticos de INNER JOIN e LEFT JOIN -->
+    <section class="card">
+      <h2>2. Prática: INNER JOIN, LEFT JOIN e Múltiplas Tabelas</h2>
+      <p>Utilize apelidos curtos (<em>table aliases</em> como <code>c</code> para <code>clientes</code> e <code>p</code> para <code>pedidos</code>) para tornar suas junções limpas e legíveis:</p>
+
+      <pre><span class="sql-cmt">-- 1. INNER JOIN: apenas clientes que já realizaram pedidos</span>
+<span class="sql-kw">SELECT</span> 
+    p.id_pedido,
+    p.data_pedido,
+    c.nome <span class="sql-kw">AS</span> cliente,
+    p.valor_total
+<span class="sql-kw">FROM</span> pedidos p
+<span class="sql-kw">INNER JOIN</span> clientes c <span class="sql-kw">ON</span> p.id_cliente = c.id_cliente;
+
+<span class="sql-cmt">-- 2. LEFT JOIN + Anti-Join: encontrar clientes que NUNCA compraram</span>
+<span class="sql-kw">SELECT</span> 
+    c.id_cliente,
+    c.nome,
+    c.email
+<span class="sql-kw">FROM</span> clientes c
+<span class="sql-kw">LEFT JOIN</span> pedidos p <span class="sql-kw">ON</span> c.id_cliente = p.id_cliente
+<span class="sql-kw">WHERE</span> p.id_pedido <span class="sql-kw">IS NULL</span>;
+
+<span class="sql-cmt">-- 3. Encadeando múltiplos JOINs (Pedidos -> Itens -> Produtos)</span>
+<span class="sql-kw">SELECT</span> 
+    p.id_pedido,
+    pr.nome <span class="sql-kw">AS</span> produto,
+    ip.quantidade,
+    ip.preco_unitario
+<span class="sql-kw">FROM</span> pedidos p
+<span class="sql-kw">INNER JOIN</span> itens_pedido ip <span class="sql-kw">ON</span> p.id_pedido = ip.id_pedido
+<span class="sql-kw">INNER JOIN</span> produtos pr <span class="sql-kw">ON</span> ip.id_produto = pr.id_produto
+<span class="sql-kw">WHERE</span> p.id_pedido = <span class="sql-num">1050</span>;</pre>
+    </section>
+
+    <!-- Seção 3: SELF JOIN (Auto-junção) -->
+    <section class="card">
+      <h2>3. Auto-junção (SELF JOIN)</h2>
+      <p>Um <strong>SELF JOIN</strong> não é uma palavra-chave especial, mas sim uma técnica em que uma tabela faz junção <strong>consigo mesma</strong> usando dois apelidos diferentes. É ideal para hierarquias na mesma tabela (como funcionário e seu gerente direto):</p>
+
+      <pre><span class="sql-cmt">-- Exibindo cada funcionário e o nome do seu respectivo gestor</span>
+<span class="sql-kw">SELECT</span> 
+    f.nome <span class="sql-kw">AS</span> funcionario,
+    g.nome <span class="sql-kw">AS</span> gestor_direto
+<span class="sql-kw">FROM</span> funcionarios f
+<span class="sql-kw">LEFT JOIN</span> funcionarios g <span class="sql-kw">ON</span> f.id_gestor = g.id_func;</pre>
+
+      <div class="callout-warn">
+        <strong>Cuidado com Junções sem ON (Produto Cartesiano):</strong> Esquecer a cláusula <code>ON</code> ou ligar colunas erradas multiplica as linhas das tabelas (ex.: 1.000 clientes × 5.000 pedidos = 5.000.000 linhas), travando consultas e distorcendo somatórios (<code>SUM</code> / <code>COUNT</code>).
+      </div>
+    </section>
+
+    <!-- Seção 4: Exercícios de Fixação -->
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <p>Analise os cenários abaixo envolvendo junções entre tabelas:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Temos 100 clientes cadastrados na tabela <code>clientes</code>, mas apenas 60 deles possuem registros na tabela <code>pedidos</code>. Quantas linhas no mínimo serão retornadas em um <code>LEFT JOIN</code> partindo de <code>clientes</code> para <code>pedidos</code>?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            No mínimo <strong>100 linhas</strong>! O <code>LEFT JOIN</code> preserva todos os 100 registros da tabela à esquerda (<code>clientes</code>): os 60 que compraram aparecerão com seus respectivos pedidos (podendo até gerar mais de 100 linhas se algum cliente tiver 2 ou mais pedidos), e os 40 que nunca compraram aparecerão uma vez com colunas de pedido preenchidas como <code>NULL</code>.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Qual a diferença prática entre colocar um filtro na cláusula <code>ON</code> de um <code>LEFT JOIN</code> versus colocá-lo na cláusula <code>WHERE</code>?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Em um <code>LEFT JOIN</code>, o filtro no <code>ON</code> restringe os registros da tabela da direita <strong>antes</strong> da junção, preservando todas as linhas da tabela da esquerda. Já um filtro sobre a tabela da direita colocado no <code>WHERE</code> (ex.: <code>WHERE p.status = 'PAGO'</code>) elimina as linhas onde <code>p.status</code> era <code>NULL</code>, transformando o <code>LEFT JOIN</code> na prática em um <code>INNER JOIN</code>!
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Escreva uma consulta usando <code>LEFT JOIN</code> para listar todos os departamentos e a quantidade de funcionários em cada um (exibindo <code>0</code> para departamentos vazios).</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            <code>SELECT d.nome_depto, COUNT(f.id_func) AS total_func FROM departamentos d LEFT JOIN funcionarios f ON d.id_depto = f.id_depto GROUP BY d.id_depto, d.nome_depto;</code><br>
+            <em>(Nota: usa-se <code>COUNT(f.id_func)</code> em vez de <code>COUNT(*)</code> para que departamentos sem funcionários retornem 0 em vez de 1).</em>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-66.html">← Anterior: Aula 66 — SELECT com Funções de Agregação</a>
+      <a href="aula-68.html">Próxima: Aula 68 — Subconsultas e Consultas Aninhadas →</a>
+    </div>
+  </main>
+
+</body>
+</html>

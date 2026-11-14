@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 61: Chaves Primárias e Estrangeiras | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código SQL */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-str { color: #a3e635; }
+    .sql-num { color: #fbbf24; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html" class="active">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 16 • Aula 61</div>
+      <h1>Aula 61: Chaves Primárias e Estrangeiras</h1>
+      <p>Aprofunde-se na definição de Chaves Primárias (PK), Chaves Estrangeiras (FK), chaves compostas, chaves naturais vs. artificiais e ações referenciais (ON DELETE / ON UPDATE) em SGBDs relacionais.</p>
+    </header>
+
+    <!-- Seção 1: Chave Primária (PK) -->
+    <section class="card">
+      <h2>1. Chave Primária (Primary Key — PK)</h2>
+      <p>A <strong>Chave Primária</strong> é uma coluna (ou conjunto de colunas) que identifica de maneira <strong>única e inequívoca</strong> cada registro dentro de uma tabela relacional. Toda tabela bem projetada deve possuir exatamente uma Chave Primária.</p>
+      <ul>
+        <li><strong>Unicidade:</strong> Não podem existir dois registros com o mesmo valor na coluna PK.</li>
+        <li><strong>Obrigatoriedade (NOT NULL):</strong> Nenhuma célula pertencente à Chave Primária pode ficar vazia/nula.</li>
+        <li><strong>Imutabilidade recomendada:</strong> Valores de PK não devem ser alterados ao longo do ciclo de vida do registro.</li>
+      </ul>
+
+      <h3>Chave Natural vs. Chave Artificial (Surrogate Key)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo de Chave</th>
+              <th>Definição</th>
+              <th>Vantagens e Cuidados</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Chave Natural</strong></td>
+              <td>Atributo que já existe no mundo real (ex.: CPF, CNPJ, ISBN, placa de veículo).</td>
+              <td>Tem significado de negócio, mas pode mudar (ex.: mudança de padrão de placa) ou ser longa para indexar.</td>
+            </tr>
+            <tr>
+              <td><strong>Chave Artificial (Surrogate)</strong></td>
+              <td>Código sequencial ou UUID gerado pelo próprio SGBD (ex.: <code>id_cliente INT AUTO_INCREMENT</code>).</td>
+              <td>Compacta, rápida para junções (JOINs) e imune a mudanças de regras externas. É a prática mais adotada.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Seção 2: Chave Estrangeira (FK) e Integridade Referencial -->
+    <section class="card">
+      <h2>2. Chave Estrangeira (Foreign Key — FK)</h2>
+      <p>A <strong>Chave Estrangeira</strong> estabelece o elo entre duas tabelas: ela é uma coluna na <em>tabela filha</em> que aponta para a <strong>Chave Primária</strong> (ou chave <code>UNIQUE</code>) da <em>tabela pai</em>.</p>
+
+      <pre><span class="sql-cmt">-- Tabela Pai</span>
+<span class="sql-kw">CREATE TABLE</span> departamentos (
+    id_depto <span class="sql-kw">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    nome_depto <span class="sql-kw">VARCHAR</span>(<span class="sql-num">60</span>) <span class="sql-kw">NOT NULL</span>
+);
+
+<span class="sql-cmt">-- Tabela Filha com restrição nomeada (CONSTRAINT)</span>
+<span class="sql-kw">CREATE TABLE</span> funcionarios (
+    id_func <span class="sql-kw">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    nome <span class="sql-kw">VARCHAR</span>(<span class="sql-num">100</span>) <span class="sql-kw">NOT NULL</span>,
+    id_depto <span class="sql-kw">INT</span>,
+    <span class="sql-kw">CONSTRAINT</span> fk_func_depto
+        <span class="sql-kw">FOREIGN KEY</span> (id_depto)
+        <span class="sql-kw">REFERENCES</span> departamentos(id_depto)
+);</pre>
+
+      <div class="callout">
+        <strong>Boas Práticas:</strong> Nomear explicitamente a restrição usando <code>CONSTRAINT fk_tabelaFilha_tabelaPai</code> facilita a leitura de mensagens de erro e permite remover ou alterar a regra futuramente com <code>ALTER TABLE ... DROP FOREIGN KEY</code>.
+      </div>
+    </section>
+
+    <!-- Seção 3: Ações Referenciais (ON DELETE e ON UPDATE) -->
+    <section class="card">
+      <h2>3. Ações Referenciais: ON DELETE e ON UPDATE</h2>
+      <p>O que deve acontecer com os registros da tabela filha caso um registro da tabela pai seja excluído ou tenha sua chave primária alterada? Podemos configurar o comportamento do SGBD:</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Ação Referencial</th>
+              <th>Comportamento no SGBD</th>
+              <th>Quando Utilizar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>RESTRICT</code> / <code>NO ACTION</code></td>
+              <td><strong>Bloqueia</strong> a exclusão/atualização na tabela pai se houver registros filhos vinculados (padrão).</td>
+              <td>Quando não se deve apagar um cliente que já possui pedidos históricos.</td>
+            </tr>
+            <tr>
+              <td><code>CASCADE</code></td>
+              <td>Propaga automaticamente a exclusão ou atualização para todos os registros filhos relacionados.</td>
+              <td>Em itens de um pedido: se o pedido for apagado, seus itens também são removidos.</td>
+            </tr>
+            <tr>
+              <td><code>SET NULL</code></td>
+              <td>Define a coluna FK na tabela filha como <code>NULL</code> ao remover o registro pai (a FK não pode ser <code>NOT NULL</code>).</td>
+              <td>Quando um departamento é extinto, mas os funcionários continuam cadastrados sem setor definido.</td>
+            </tr>
+            <tr>
+              <td><code>SET DEFAULT</code></td>
+              <td>Atribui um valor padrão pré-definido à coluna FK nos registros filhos afetados.</td>
+              <td>Redirecionar registros órfãos para uma categoria genérica (ex.: <code>id_categoria = 1</code>).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><span class="sql-cmt">-- Exemplo configurando ações referenciais explícitas</span>
+<span class="sql-kw">CREATE TABLE</span> itens_pedido (
+    id_pedido <span class="sql-kw">INT NOT NULL</span>,
+    id_produto <span class="sql-kw">INT NOT NULL</span>,
+    quantidade <span class="sql-kw">INT NOT NULL</span>,
+    <span class="sql-kw">PRIMARY KEY</span> (id_pedido, id_produto),
+    <span class="sql-kw">FOREIGN KEY</span> (id_pedido) <span class="sql-kw">REFERENCES</span> pedidos(id_pedido)
+        <span class="sql-kw">ON DELETE CASCADE</span>
+        <span class="sql-kw">ON UPDATE CASCADE</span>,
+    <span class="sql-kw">FOREIGN KEY</span> (id_produto) <span class="sql-kw">REFERENCES</span> produtos(id_produto)
+        <span class="sql-kw">ON DELETE RESTRICT</span>
+);</pre>
+
+      <div class="callout-warn">
+        <strong>Cuidado com ON DELETE CASCADE:</strong> Use com cautela em tabelas principais, pois excluir uma única linha na tabela pai pode disparar exclusões em cadeia por dezenas de tabelas dependentes.
+      </div>
+    </section>
+
+    <!-- Seção 4: Exercícios de Fixação -->
+    <section class="card">
+      <h2>4. Exercícios de Fixação</h2>
+      <p>Teste seus conhecimentos sobre chaves e ações referenciais:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Qual a diferença entre uma chave <code>PRIMARY KEY</code> e uma restrição <code>UNIQUE</code> em uma tabela?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Ambas impedem valores duplicados na coluna. Porém, uma tabela pode ter apenas <strong>uma</strong> <code>PRIMARY KEY</code> (que nunca aceita valores <code>NULL</code>), enquanto pode ter <strong>várias</strong> colunas <code>UNIQUE</code> (que, na maioria dos SGBDs, aceitam valores <code>NULL</code>, desde que não haja duplicidade de valores preenchidos).
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Se uma chave estrangeira foi definida com <code>NOT NULL</code>, é possível configurar a regra <code>ON DELETE SET NULL</code> para ela?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            <strong>Não.</strong> Como a coluna proíbe valores nulos (<code>NOT NULL</code>), o SGBD impedirá a criação da restrição ou falhará ao tentar atribuir <code>NULL</code> durante uma exclusão na tabela pai.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Por que os tipos de dados da Chave Estrangeira na tabela filha e da Chave Primária na tabela pai precisam ser compatíveis (ex.: ambas <code>INT</code> ou ambas <code>BIGINT</code>)?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Porque o SGBD precisa comparar exatamente os valores armazenados para validar a integridade referencial e executar junções (<code>JOIN</code>). Tipos incompatíveis (como <code>INT</code> referenciando <code>VARCHAR</code>) geram erro de sintaxe/estrutura no momento do <code>CREATE TABLE</code>.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-60.html">← Anterior: Aula 60 — SQL Básico para SGBD</a>
+      <a href="aula-62.html">Próxima: Aula 62 — Índices em Bancos Relacionais →</a>
+    </div>
+  </main>
+
+</body>
+</html>

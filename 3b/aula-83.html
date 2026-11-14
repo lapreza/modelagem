@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 83: Armazenamento em Nuvem | MDBD</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2c3e50; background-color: #f4f6f9; display: flex; min-height: 100vh; }
+    aside { width: 320px; background-color: #1e293b; color: #f8fafc; padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+    aside h2 { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
+    .bimestres-nav { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+    .bimestres-nav span { color: #94a3b8; display: block; margin-bottom: 8px; font-weight: bold; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .bimestres-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .bimestres-links a { background: #334155; color: #cbd5e1; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.82rem; font-weight: 600; }
+    .bimestres-links a.active { background: #0284c7; color: #ffffff; }
+    .btn-home { display: block; background: #0f172a; color: #38bdf8; text-align: center; padding: 8px; border-radius: 5px; text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 18px; border: 1px solid #334155; }
+    .semana-group { margin-bottom: 20px; }
+    .semana-title { font-weight: 600; font-size: 0.95rem; color: #38bdf8; margin-bottom: 8px; }
+    ul.nav-aulas { list-style: none; padding-left: 10px; }
+    ul.nav-aulas li { margin-bottom: 6px; }
+    ul.nav-aulas a { color: #cbd5e1; text-decoration: none; font-size: 0.88rem; display: block; padding: 4px 8px; border-radius: 4px; }
+    ul.nav-aulas a:hover { color: #ffffff; background-color: #334155; }
+    ul.nav-aulas a.active { background-color: #0284c7; color: #ffffff; font-weight: 600; }
+    main { flex: 1; padding: 40px; max-width: 960px; }
+    header { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 30px; border-left: 5px solid #0284c7; }
+    header .breadcrumb { font-size: 0.85rem; color: #0284c7; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+    header h1 { font-size: 1.8rem; color: #1e293b; margin-bottom: 8px; }
+    header p { color: #64748b; line-height: 1.5; }
+    section.card { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 25px; }
+    section.card h2 { font-size: 1.35rem; color: #1e293b; margin-bottom: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    section.card p { line-height: 1.7; margin-bottom: 14px; color: #334155; }
+    section.card ul, section.card ol { margin-left: 22px; margin-bottom: 16px; color: #334155; line-height: 1.7; }
+    .callout { background-color: #f0f9ff; border-left: 4px solid #0284c7; padding: 16px 20px; border-radius: 0 6px 6px 0; margin: 18px 0; color: #1e293b; }
+    .table-wrapper { overflow-x: auto; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; }
+    th { background-color: #1e293b; color: #ffffff; font-weight: 600; }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    .quiz-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 18px; margin-bottom: 16px; }
+    .quiz-item p.pergunta { font-weight: 600; color: #0f172a; margin-bottom: 10px; }
+    details { margin-top: 10px; } summary { cursor: pointer; color: #0284c7; font-weight: 600; font-size: 0.9rem; }
+    .resposta-box { margin-top: 10px; padding: 12px; background-color: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; border-radius: 0 4px 4px 0; font-size: 0.92rem; }
+    .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; gap: 15px; }
+    .lesson-nav a { background-color: #ffffff; color: #0284c7; border: 1px solid #0284c7; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .lesson-nav a:hover { background-color: #0284c7; color: #ffffff; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a><a href="../2b/index.html">2ºB</a><a href="./index.html" class="active">3ºB</a><a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+    <h2>3º Bimestre — SGBD</h2>
+    <div class="semana-group"><div class="semana-title">Semana 21: Migração e Nuvem</div>
+    <ul class="nav-aulas">
+      <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+      <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+      <li><a href="aula-83.html" class="active">Aula 83: Armazenamento em Nuvem</a></li>
+      <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+    </ul></div>
+  </aside>
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 21 • Aula 83</div>
+      <h1>Aula 83: Armazenamento de Dados em Nuvem</h1>
+      <p>Compreenda os modelos de bancos de dados gerenciados em nuvem (DBaaS), escalabilidade horizontal vs. vertical, servidores nativos de nuvem (Cloud-Native) e estratégias de armazenamento distribuído.</p>
+    </header>
+    <section class="card">
+      <h2>1. Bancos de Dados como Serviço (DBaaS)</h2>
+      <p>Com o avanço da computação em nuvem (AWS, Azure, Google Cloud), a gestão tradicional de servidores físicos deu lugar aos serviços gerenciados de banco de dados (DBaaS — <em>Database as a Service</em>):</p>
+      <ul>
+        <li><strong>Vantagens do DBaaS:</strong> Patches de segurança automatizados, backups contínuos geridos, escalabilidade elástica de instâncias de CPU/RAM e alta disponibilidade nativa com failover gerenciado pelo provedor.</li>
+        <li><strong>Modelos de Escalonamento:</strong> 
+          <ul>
+            <li><em>Escalonamento Vertical (Scale-up):</em> Aumento de hardware da máquina atual (mais RAM, mais vCPU).</li>
+            <li><em>Escalonamento Horizontal (Scale-out):</em> Adição de novos nós ao cluster (comum em arquiteturas distribuidas NoSQL e NewSQL).</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>2. Exercícios de Fixação</h2>
+      <div class="quiz-item">
+        <p class="pergunta">1. O que significa a sigla DBaaS no contexto de armazenamento de dados em nuvem?</p>
+        <details><summary>Ver resposta</summary><div class="resposta-box">Significa <strong>Database as a Service</strong> (Banco de Dados como Serviço), onde a infraestrutura e a manutenção operacional do SGBD são gerenciadas pelo provedor de nuvem.</div></details>
+      </div>
+    </section>
+    <div class="lesson-nav">
+      <a href="aula-82.html">← Anterior: Aula 82 — Indexação Avançada</a>
+      <a href="aula-84.html">Próxima: Aula 84 — Tópicos Avançados em SGBDs →</a>
+    </div>
+  </main>
+</body>
+</html>

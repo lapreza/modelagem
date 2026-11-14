@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 59: Normalização de Banco de Dados | MDBD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2c3e50;
+      background-color: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+    }
+    /* Layout Lateral */
+    aside {
+      width: 320px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
+    .btn-home {
+      display: block;
+      background: #0f172a;
+      color: #38bdf8;
+      text-align: center;
+      padding: 8px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .btn-home:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+    .semana-group {
+      margin-bottom: 20px;
+    }
+    .semana-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    ul.nav-aulas {
+      list-style: none;
+      padding-left: 10px;
+    }
+    ul.nav-aulas li {
+      margin-bottom: 6px;
+    }
+    ul.nav-aulas a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    ul.nav-aulas a:hover {
+      color: #ffffff;
+      background-color: #334155;
+    }
+    ul.nav-aulas a.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Conteúdo Principal */
+    main {
+      flex: 1;
+      padding: 40px;
+      max-width: 960px;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      border-left: 5px solid #0284c7;
+    }
+    header .breadcrumb {
+      font-size: 0.85rem;
+      color: #0284c7;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Cartões de Conteúdo */
+    section.card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+    section.card h2 {
+      font-size: 1.35rem;
+      color: #1e293b;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+    section.card h3 {
+      font-size: 1.1rem;
+      color: #0369a1;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    section.card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+    section.card ul, section.card ol {
+      margin-left: 22px;
+      margin-bottom: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    section.card li {
+      margin-bottom: 6px;
+    }
+
+    /* Destaques e Exemplos */
+    .callout {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #1e293b;
+    }
+    .callout strong {
+      color: #0369a1;
+    }
+
+    .callout-warn {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 6px 6px 0;
+      margin: 18px 0;
+      color: #78350f;
+    }
+
+    /* Tabela Comparativa */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Bloco de Código / Esquema */
+    pre {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .sql-kw { color: #38bdf8; font-weight: bold; }
+    .sql-cmt { color: #64748b; font-style: italic; }
+    .pk-tag { color: #fbbf24; font-weight: bold; }
+    .fk-tag { color: #34d399; font-weight: bold; }
+
+    /* Exercícios de Fixação */
+    .quiz-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .quiz-item p.pergunta {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+    details {
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: #0284c7;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    summary:hover {
+      text-decoration: underline;
+    }
+    .resposta-box {
+      margin-top: 10px;
+      padding: 12px;
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+
+    /* Navegação Inferior entre Aulas */
+    .lesson-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      gap: 15px;
+    }
+    .lesson-nav a {
+      background-color: #ffffff;
+      color: #0284c7;
+      border: 1px solid #0284c7;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .lesson-nav a:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      main {
+        padding: 20px;
+      }
+      .lesson-nav {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação (3º Bimestre) -->
+  <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="../index.html">1ºB</a>
+        <a href="../2b/index.html">2ºB</a>
+        <a href="./index.html" class="active">3ºB</a>
+        <a href="../4b/index.html">4ºB</a>
+      </div>
+    </div>
+
+    <a href="./index.html" class="btn-home">← Início do 3º Bimestre</a>
+
+    <h2>3º Bimestre — SGBD</h2>
+    
+    <div class="semana-group">
+      <div class="semana-title">Semana 15: SGBD Relacional</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-57.html">Aula 57: Introdução aos SGBDs Relacionais</a></li>
+        <li><a href="aula-58.html">Aula 58: Modelagem de Dados Relacional</a></li>
+        <li><a href="aula-59.html" class="active">Aula 59: Normalização de Banco de Dados</a></li>
+        <li><a href="aula-60.html">Aula 60: SQL Básico para SGBD Relacional</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 16: Chaves, Índices e Vistas</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-61.html">Aula 61: Chaves Primárias e Estrangeiras</a></li>
+        <li><a href="aula-62.html">Aula 62: Índices em Bancos Relacionais</a></li>
+        <li><a href="aula-63.html">Aula 63: Transações em Bancos Relacionais</a></li>
+        <li><a href="aula-64.html">Aula 64: Vistas (Views) em Bancos Relacionais</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 17: Cláusulas SELECT</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-65.html">Aula 65: Cláusula SELECT Básica</a></li>
+        <li><a href="aula-66.html">Aula 66: SELECT com Funções de Agregação</a></li>
+        <li><a href="aula-67.html">Aula 67: SELECT com Junções (JOIN)</a></li>
+        <li><a href="aula-68.html">Aula 68: Subconsultas e Consultas Aninhadas</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 18: SELECT Avançado</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-69.html">Aula 69: Funções de Janela (Window Functions)</a></li>
+        <li><a href="aula-70.html">Aula 70: Common Table Expressions (CTE)</a></li>
+        <li><a href="aula-71.html">Aula 71: SELECT com UNION e UNION ALL</a></li>
+        <li><a href="aula-72.html">Aula 72: SELECT com CASE</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 19: DDL x DML</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-73.html">Aula 73: Diferenças entre DDL e DML</a></li>
+        <li><a href="aula-74.html">Aula 74: Comandos DDL Complementares</a></li>
+        <li><a href="aula-75.html">Aula 75: Comandos DML Complementares</a></li>
+        <li><a href="aula-76.html">Aula 76: Transações com DML</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 20: Segurança e Performance</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-77.html">Aula 77: Backup e Recuperação de Dados</a></li>
+        <li><a href="aula-78.html">Aula 78: Monitoramento de Performance</a></li>
+        <li><a href="aula-79.html">Aula 79: Segurança em Bancos Relacionais</a></li>
+        <li><a href="aula-80.html">Aula 80: Configuração de Alta Disponibilidade</a></li>
+      </ul>
+    </div>
+
+    <div class="semana-group">
+      <div class="semana-title">Semana 21: Migração e Nuvem</div>
+      <ul class="nav-aulas">
+        <li><a href="aula-81.html">Aula 81: Migração de Dados</a></li>
+        <li><a href="aula-82.html">Aula 82: Indexação Avançada</a></li>
+        <li><a href="aula-83.html">Aula 83: Armazenamento de Dados em Nuvem</a></li>
+        <li><a href="aula-84.html">Aula 84: Tópicos Avançados em SGBDs</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Área Central de Conteúdo -->
+  <main>
+    <header>
+      <div class="breadcrumb">3º Bimestre • Semana 15 • Aula 59</div>
+      <h1>Aula 59: Normalização de Banco de Dados</h1>
+      <p>Elimine redundâncias e anomalias de inserção, atualização e exclusão aplicando passo a passo a Primeira, Segunda e Terceira Formas Normais (1FN, 2FN e 3FN) em bancos relacionais.</p>
+    </header>
+
+    <!-- Seção 1: Por que Normalizar? -->
+    <section class="card">
+      <h2>1. O que é Normalização e Quais Problemas Ela Resolve?</h2>
+      <p>A <strong>Normalização de Dados</strong> é um conjunto de regras formais aplicadas sobre o esquema relacional para organizar colunas e tabelas, reduzindo a duplicação desnecessária de dados e prevenindo as chamadas <strong>anomalias de manipulação</strong>:</p>
+      <ul>
+        <li><strong>Anomalia de Inserção:</strong> Impossibilidade de cadastrar um dado importante sem ter outro dado associado (ex.: não conseguir cadastrar um novo curso porque ainda não há nenhum aluno matriculado nele).</li>
+        <li><strong>Anomalia de Atualização:</strong> Quando uma mesma informação está repetida em várias linhas e precisa ser alterada em todas elas (ex.: mudar o telefone de um cliente em 15 pedidos diferentes; se esquecer de uma linha, o banco fica inconsistente).</li>
+        <li><strong>Anomalia de Exclusão:</strong> Perda acidental de informações úteis ao apagar um registro (ex.: excluir o único pedido de um cliente e, com isso, perder também o endereço e CPF desse cliente).</li>
+      </ul>
+
+      <div class="callout-warn">
+        <strong>Regra Prática:</strong> As Formas Normais são cumulativas. Para uma tabela estar na <strong>3FN</strong>, ela precisa obrigatoriamente satisfazer primeiro a <strong>1FN</strong> e a <strong>2FN</strong>.
+      </div>
+    </section>
+
+    <!-- Seção 2: Estudo de Caso Progressivo -->
+    <section class="card">
+      <h2>2. Exemplo Inicial: Tabela Não Normalizada</h2>
+      <p>Observe a tabela <code>pedidos_brutos</code> abaixo, que concentra todas as informações de uma venda em uma única estrutura:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>id_pedido</th>
+              <th>data</th>
+              <th>id_cliente</th>
+              <th>nome_cliente</th>
+              <th>telefones</th>
+              <th>id_prod</th>
+              <th>desc_prod</th>
+              <th>qtd</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>101</td>
+              <td>10/08/2026</td>
+              <td>5</td>
+              <td>Ana Silva</td>
+              <td>19-9911-2233, 19-3873-0000</td>
+              <td>10</td>
+              <td>Mouse Óptico</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>101</td>
+              <td>10/08/2026</td>
+              <td>5</td>
+              <td>Ana Silva</td>
+              <td>19-9911-2233, 19-3873-0000</td>
+              <td>22</td>
+              <td>Teclado USB</td>
+              <td>1</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Note os problemas graves: múltiplos telefones dentro de uma única célula, repetição do nome da cliente e dependência parcial dos dados do produto.</p>
+    </section>
+
+    <!-- Seção 3: As Três Formas Normais -->
+    <section class="card">
+      <h2>3. Aplicando 1FN, 2FN e 3FN Passo a Passo</h2>
+
+      <h3>Primeira Forma Normal (1FN) — Atomicidade</h3>
+      <p><strong>Regra:</strong> Cada célula da tabela deve conter apenas um <strong>valor atômico</strong> (indivisível). Não são permitidos atributos multivalorados nem grupos repetitivos.</p>
+      <ul>
+        <li><strong>Solução:</strong> Removemos a coluna <code>telefones</code> com valores separados por vírgula e criamos uma tabela separada <code>telefones_cliente(id_telefone PK, id_cliente FK, numero)</code>. Além disso, definimos a chave primária composta <code>(id_pedido, id_prod)</code> para identificar cada linha de item.</li>
+      </ul>
+
+      <h3>Segunda Forma Normal (2FN) — Dependência Funcional Total</h3>
+      <p><strong>Regra:</strong> A tabela deve estar na <strong>1FN</strong> e todos os atributos não-chave devem depender da <strong>chave primária inteira</strong>, e não apenas de parte dela (elimina dependências parciais em chaves compostas).</p>
+      <ul>
+        <li><strong>Diagnóstico:</strong> Na tabela com PK composta <code>(id_pedido, id_prod)</code>, a coluna <code>desc_prod</code> depende apenas de <code>id_prod</code>, enquanto <code>data</code>, <code>id_cliente</code> e <code>nome_cliente</code> dependem apenas de <code>id_pedido</code>. Somente <code>qtd</code> depende de ambos!</li>
+        <li><strong>Solução:</strong> Separamos em três tabelas: <code>pedidos</code>, <code>produtos</code> e <code>itens_pedido</code>.</li>
+      </ul>
+
+      <h3>Terceira Forma Normal (3FN) — Eliminação de Dependência Transitiva</h3>
+      <p><strong>Regra:</strong> A tabela deve estar na <strong>2FN</strong> e nenhum atributo não-chave pode depender de outro atributo não-chave (elimina dependências transitivas).</p>
+      <ul>
+        <li><strong>Diagnóstico:</strong> Na tabela <code>pedidos(id_pedido PK, data, id_cliente, nome_cliente)</code>, o <code>nome_cliente</code> não depende diretamente de <code>id_pedido</code>, mas sim de <code>id_cliente</code> (que é uma coluna não-chave em <code>pedidos</code>).</li>
+        <li><strong>Solução:</strong> Extraímos os dados do cliente para a tabela <code>clientes(id_cliente PK, nome_cliente)</code>, deixando apenas a chave estrangeira <code>id_cliente FK</code> em <code>pedidos</code>.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Resultado Final Normalizado (3FN):</strong><br>
+        <code>clientes (<span class="pk-tag">id_cliente PK</span>, nome_cliente)</code><br>
+        <code>telefones_cliente (<span class="pk-tag">id_telefone PK</span>, <span class="fk-tag">id_cliente FK</span>, numero)</code><br>
+        <code>produtos (<span class="pk-tag">id_prod PK</span>, desc_prod, preco_unitario)</code><br>
+        <code>pedidos (<span class="pk-tag">id_pedido PK</span>, data, <span class="fk-tag">id_cliente FK</span>)</code><br>
+        <code>itens_pedido (<span class="pk-tag fk-tag">id_pedido PK/FK</span>, <span class="pk-tag fk-tag">id_prod PK/FK</span>, qtd)</code>
+      </div>
+    </section>
+
+    <!-- Seção 4: Quadro Resumo -->
+    <section class="card">
+      <h2>4. Quadro Resumo das Formas Normais</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Forma Normal</th>
+              <th>O que Verifica</th>
+              <th>Ação Corretiva</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1FN</strong></td>
+              <td>Valores multivalorados ou listas na mesma célula.</td>
+              <td>Garantir atomicidade e mover listas para nova tabela.</td>
+            </tr>
+            <tr>
+              <td><strong>2FN</strong></td>
+              <td>Colunas que dependem de apenas parte de uma PK composta.</td>
+              <td>Isolar atributos parcialmente dependentes em tabelas próprias.</td>
+            </tr>
+            <tr>
+              <td><strong>3FN</strong></td>
+              <td>Colunas não-chave determinando outras colunas não-chave.</td>
+              <td>Criar tabela independente para a entidade transitiva e manter apenas a FK.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Seção 5: Exercícios de Fixação -->
+    <section class="card">
+      <h2>5. Exercícios de Fixação</h2>
+      <p>Analise as estruturas abaixo e identifique qual Forma Normal está sendo violada:</p>
+
+      <div class="quiz-item">
+        <p class="pergunta">1. Uma tabela <code>funcionarios(id_func PK, nome, id_cargo, nome_cargo, piso_salarial)</code> está na 1FN e 2FN (pois sua PK é simples). Qual Forma Normal ela viola e por quê?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Viola a <strong>Terceira Forma Normal (3FN)</strong>. As colunas <code>nome_cargo</code> e <code>piso_salarial</code> dependem de <code>id_cargo</code> (atributo não-chave), caracterizando dependência transitiva. O correto é criar a tabela <code>cargos</code> e manter apenas <code>id_cargo FK</code> em <code>funcionarios</code>.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">2. Uma tabela <code>alunos(id_aluno PK, nome, disciplinas_cursadas)</code> armazena na coluna <code>disciplinas_cursadas</code> o texto <code>"Matemática; Banco de Dados; Redes"</code>. Qual Forma Normal foi violada?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Viola a <strong>Primeira Forma Normal (1FN)</strong>, pois o campo contém múltiplos valores concatenados em uma única célula, ferindo o princípio da atomicidade.
+          </div>
+        </details>
+      </div>
+
+      <div class="quiz-item">
+        <p class="pergunta">3. Por que uma tabela cuja Chave Primária (PK) é formada por apenas uma coluna e já está na 1FN automaticamente já satisfaz a 2FN?</p>
+        <details>
+          <summary>Ver resposta comentada</summary>
+          <div class="resposta-box">
+            Porque a <strong>dependência parcial</strong> só pode existir quando a chave primária é composta por duas ou mais colunas. Se a chave tem apenas um atributo, todo campo que depende dela depende obrigatoriamente da chave inteira.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Navegação Inferior -->
+    <div class="lesson-nav">
+      <a href="aula-58.html">← Anterior: Aula 58 — Modelagem Relacional</a>
+      <a href="aula-60.html">Próxima: Aula 60 — SQL Básico para SGBD →</a>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -37,6 +37,43 @@
       border-bottom: 1px solid #334155;
       padding-bottom: 8px;
     }
+    .bimestres-nav {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+    .bimestres-nav span {
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .bimestres-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bimestres-links a {
+      background: #334155;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bimestres-links a.active {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .bimestres-links a:hover:not(.active) {
+      background: #475569;
+      color: #ffffff;
+    }
     .semana-group {
       margin-bottom: 20px;
     }
@@ -150,6 +187,16 @@
 
   <!-- Menu Lateral de Navegação -->
   <aside>
+    <div class="bimestres-nav">
+      <span>Navegar por Bimestre:</span>
+      <div class="bimestres-links">
+        <a href="index.html" class="active">1ºB</a>
+        <a href="2b/index.html">2ºB</a>
+        <a href="3b/index.html">3ºB</a>
+        <a href="4b/index.html">4ºB</a>
+      </div>
+    </div>
+
     <h2>Conteúdo Programático</h2>
     
     <div class="semana-group">
